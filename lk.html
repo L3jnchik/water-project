@@ -126,8 +126,9 @@
         </div>
 
     </div>
-    <script>
+       <script>
         const SUPABASE_URL = "https://supabase.co";
+        // ИСПРАВЛЕНО: Заменили русскую букву в ключе на английскую
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhqZWRmbHZvenJ5bXdlYXVleW1rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MzEzMDIsImV4cCI6MjA5NjQwNzMwMn0.kMKJKd_BdtmCLJGYbk8VKUD2WxYwBQRgyGl_ZOvBm6M";
         
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -144,7 +145,7 @@
             }
         });
 
-        // Перехват отправки формы для Входа
+        // ВХОД
         document.getElementById('loginBtn').addEventListener('click', async (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value.trim();
@@ -159,7 +160,7 @@
             else { sessionUser = data.user; await checkUserProfile(); }
         });
 
-        // Перехват отправки формы для Регистрации
+        // РЕГИСТРАЦИЯ
         document.getElementById('regBtn').addEventListener('click', async (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value.trim();
@@ -221,7 +222,7 @@
             const msg = document.getElementById('lkMessage');
             if (!fileInput.files.length) return;
             msg.innerText = "Смена скина..."; msg.style.color = "#fff";
-            const file = fileInput.files;
+            const file = fileInput.files[0];
             const fileName = dbProfile.username + "_skin.png";
             const { error: uploadError } = await supabaseClient.storage.from('skins').upload(fileName, file, { cacheControl: '0', upsert: true });
             if (!uploadError) {
