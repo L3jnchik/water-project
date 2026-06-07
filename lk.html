@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Личный Кабинет — WaterProject</title>
+    <!-- Подключаем иконки FontAwesome -->
     <link rel="stylesheet" href="https://cloudflare.com">
-    <!-- Подключаем библиотеку Supabase -->
+    <!-- Подключаем официальную библиотеку Supabase SDK -->
     <script src="https://unpkg.com"></script>
     <style>
         :root { --primary-color: #4fc3f7; --accent-color: #2ecc71; --dark-bg: rgba(15, 15, 15, 0.95); }
@@ -53,7 +54,9 @@
             <a href="lk.html" class="active"><i class="fa-solid fa-circle-user"></i> Личный кабинет</a>
         </div>
     </nav>
-    <div class="main-container">  
+
+    <div class="main-container">
+        
         <!-- ЭКРАН 1: АВТОРИЗАЦИЯ -->
         <div id="authBlock" class="card" style="max-width: 400px; margin: 40px auto; display: block;">
             <h3>Вход / Регистрация по Email</h3>
@@ -125,10 +128,9 @@
         </div>
 
     </div>
-    <!-- ТЕГ КЛИЕНТСКОГО СЦЕНАРИЯ -->
     <script>
         const SUPABASE_URL = "https://supabase.co";
-        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhqZWRmbHZvenJ5bXdlYXVleW1rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MzEzMDIsImV4cCI6MjA5NjQwNzMwMn0.kMKJKd_BdtmCLJGYbk8VKUD2WxYwBQRgyGl_ZOvBm6M";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhqZWRmbHZvenJ5bXdlYXVлеW1rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MzEzMDIsImV4cCI6MjA5NjQwNzMwMn0.kMKJKd_BdtmCLJGYbk8VKUD2WxYwBQRgyGl_ZOvBm6M";
         
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         let sessionUser = null;
@@ -231,7 +233,7 @@
             if (!fileInput.files.length) return;
             
             msg.innerText = "Смена скина..."; msg.style.color = "#fff";
-            const file = fileInput.files;
+            const file = fileInput.files[0];
             const fileName = dbProfile.username + "_skin.png";
             
             const { error: uploadError } = await supabaseClient.storage.from('skins').upload(fileName, file, { cacheControl: '0', upsert: true });
@@ -239,7 +241,7 @@
                 const { data } = supabaseClient.storage.from('skins').getPublicUrl(fileName);
                 await supabaseClient.from('users').update({ skin_url: data.publicUrl }).eq('id', dbProfile.id);
                 document.getElementById('skinImg').src = data.publicUrl + "?t=" + new Date().getTime();
-                msg.innerText = "Ваш личный скин успешно установлен!"; msg.style.color = "#2ecc71";
+                msg.innerText = "Скин успешно установлен!"; msg.style.color = "#2ecc71";
             } else { msg.innerText = "Ошибка: " + uploadError.message; msg.style.color = "#e74c3c"; }
         });
 
