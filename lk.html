@@ -53,9 +53,7 @@
             <a href="lk.html" class="active"><i class="fa-solid fa-circle-user"></i> Личный кабинет</a>
         </div>
     </nav>
-
-    <div class="main-container">
-        
+    <div class="main-container">  
         <!-- ЭКРАН 1: АВТОРИЗАЦИЯ -->
         <div id="authBlock" class="card" style="max-width: 400px; margin: 40px auto; display: block;">
             <h3>Вход / Регистрация по Email</h3>
@@ -127,8 +125,7 @@
         </div>
 
     </div>
-
-    <!-- ТЕПЕРЬ ВСЁ НА СВОЕМ МЕСТЕ ВНУТРИ ТЕГА SCRIPT -->
+    <!-- ТЕГ КЛИЕНТСКОГО СЦЕНАРИЯ -->
     <script>
         const SUPABASE_URL = "https://supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhqZWRmbHZvenJ5bXdlYXVleW1rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MzEzMDIsImV4cCI6MjA5NjQwNzMwMn0.kMKJKd_BdtmCLJGYbk8VKUD2WxYwBQRgyGl_ZOvBm6M";
@@ -140,4 +137,150 @@
         const randomSkinNames = ["FixEye", "Comp", "Scally", "Ronaldo", "MrBeast", "Dream", "Technoblade", "Frostdog", "Coffi", "EdisonPTS"];
 
         window.addEventListener('DOMContentLoaded', async () => {
-Используйте код с осторожностью.const { data: { session } } = await supabaseClient.auth.getSession();if (session) {sessionUser = session.user;await checkUserProfile();}});document.getElementById('loginBtn').addEventListener('click', async () => {const email = document.getElementById('email').value.trim();const password = document.getElementById('password').value;const msg = document.getElementById('authMessage');if(!email || !password) return;msg.innerText = "Проверка данных..."; msg.style.color = "#fff";const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });if (error) { msg.innerText = "Ошибка: " + error.message; msg.style.color = "#e74c3c"; }else { sessionUser = data.user; await checkUserProfile(); }});document.getElementById('regBtn').addEventListener('click', async () => {const email = document.getElementById('email').value.trim();const password = document.getElementById('password').value;const msg = document.getElementById('authMessage');if(!email || !password) return;msg.innerText = "Регистрация..."; msg.style.color = "#fff";const { data, error } = await supabaseClient.auth.signUp({ email, password });if (error) { msg.innerText = "Ошибка: " + error.message; msg.style.color = "#e74c3c"; }else { msg.innerText = "Успех! Письмо отправлено на почту. Подтвердите вход и обновите страницу."; msg.style.color = "#2ecc71"; }});async function checkUserProfile() {let { data: profile } = await supabaseClient.from('users').select('*').eq('id', sessionUser.id).maybeSingle();if (!profile) {document.getElementById('authBlock').style.display = 'none';document.getElementById('nicknameModal').style.display = 'flex';} else {dbProfile = profile;openDashboard();}}document.getElementById('saveNicknameBtn').addEventListener('click', async () => {const nick = document.getElementById('newUsername').value.trim();const msg = document.getElementById('modalMessage');if (nick.length < 3 || nick.length > 16) {msg.innerText = "Ник должен быть от 3 до 16 символов!"; msg.style.color = "#e74c3c";return;}let { data: exist } = await supabaseClient.from('users').select('username').eq('username', nick).maybeSingle();if(exist) {msg.innerText = "Этот никнейм уже занят!"; msg.style.color = "#e74c3c";return;}const { data: newProfile, error } = await supabaseClient.from('users').insert([{ id: sessionUser.id, username: nick, password_hash: 'email_auth_secured' }]).select().single();if (!error) {dbProfile = newProfile;document.getElementById('nicknameModal').style.display = 'none';openDashboard();} else {msg.innerText = "Ошибка сохранения: " + error.message;}});function openDashboard() {document.getElementById('authBlock').style.display = 'none';document.getElementById('nicknameModal').style.display = 'none';document.getElementById('lkBlock').style.display = 'block';document.getElementById('lkUsername').innerText = dbProfile.username;document.getElementById('userBalance').innerText = dbProfile.balance || 0;if(dbProfile.skin_url) {document.getElementById('skinImg').src = dbProfile.skin_url;}}document.getElementById('uploadSkinBtn').addEventListener('click', async () => {const fileInput = document.getElementById('skinFile');const msg = document.getElementById('lkMessage');if (!fileInput.files.length) return;msg.innerText = "Смена скина..."; msg.style.color = "#fff";const file = fileInput.files;const fileName = dbProfile.username + "_skin.png";const { error: uploadError } = await supabaseClient.storage.from('skins').upload(fileName, file, { cacheControl: '0', upsert: true });if (!uploadError) {const { data } = supabaseClient.storage.from('skins').getPublicUrl(fileName);await supabaseClient.from('users').update({ skin_url: data.publicUrl }).eq('id', dbProfile.id);document.getElementById('skinImg').src = data.publicUrl + "?t=" + new Date().getTime();msg.innerText = "Скин успешно установлен!"; msg.style.color = "#2ecc71";} else { msg.innerText = "Ошибка: " + uploadError.message; msg.style.color = "#e74c3c"; }});document.getElementById('generateSkinBtn').addEventListener('click', async () => {const msg = document.getElementById('lkMessage');msg.innerText = "Подбор образа..."; msg.style.color = "#fff";const randomNick = randomSkinNames[Math.floor(Math.random() * randomSkinNames.length)];const generatedSkinUrl = "minotar.net" + randomNick + "/100.png";await supabaseClient.from('users').update({ skin_url: generatedSkinUrl }).eq('id', dbProfile.id);document.getElementById('skinImg').src = generatedSkinUrl;msg.innerText = "Установлен образ игрока " + randomNick + "!"; msg.style.color = "#2ecc71";});document.getElementById('activatePromoBtn').addEventListener('click', async () => {const codeInput = document.getElementById('promoInput').value.trim();const msg = document.getElementById('lkMessage');if(!codeInput) return;const { data: promo, error } = await supabaseClient.from('promocodes').select('*').eq('code', codeInput).single();if (error || !promo || promo.uses_left <= 0) { msg.innerText = "Промокод не существует!"; msg.style.color = "#e74c3c"; return; }const { data: checkAct } = await supabaseClient.from('promocode_activations').select('*').eq('user_id', dbProfile.id).eq('promocode_id', promo.id).single();if(checkAct) { msg.innerText = "Вы уже вводили этот код!"; msg.style.color = "#f39c12"; return; }const newBalance = dbProfile.balance + promo.reward_money;await supabaseClient.from('users').update({ balance: newBalance }).eq('id', dbProfile.id);await supabaseClient.from('promocode_activations').insert([{ user_id: dbProfile.id, promocode_id: promo.id }]);await supabaseClient.from('promocodes').update({ uses_left: promo.uses_left - 1 }).eq('id', promo.id);dbProfile.balance = newBalance; document.getElementById('userBalance').innerText = newBalance;msg.innerText = "Успешно! Получено +" + promo.reward_money + " монет."; msg.style.color = "#2ecc71";document.getElementById('promoInput').value = "";});document.getElementById('logoutBtn').addEventListener('click', async () => { await supabaseClient.auth.signOut(); window.location.reload(); });
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session) { 
+                sessionUser = session.user; 
+                await checkUserProfile(); 
+            }
+        });
+
+        // ВХОД
+        document.getElementById('loginBtn').addEventListener('click', async () => {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const msg = document.getElementById('authMessage');
+            if(!email || !password) return;
+            
+            msg.innerText = "Проверка данных..."; msg.style.color = "#fff";
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            
+            if (error) { msg.innerText = "Ошибка: " + error.message; msg.style.color = "#e74c3c"; } 
+            else { sessionUser = data.user; await checkUserProfile(); }
+        });
+
+        // РЕГИСТРАЦИЯ
+        document.getElementById('regBtn').addEventListener('click', async () => {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const msg = document.getElementById('authMessage');
+            if(!email || !password) return;
+            
+            msg.innerText = "Регистрация..."; msg.style.color = "#fff";
+            const { data, error } = await supabaseClient.auth.signUp({ email, password });
+            
+            if (error) { msg.innerText = "Ошибка: " + error.message; msg.style.color = "#e74c3c"; } 
+            else { msg.innerText = "Успех! Письмо отправлено на почту. Подтвердите вход и обновите страницу."; msg.style.color = "#2ecc71"; }
+        });
+
+        // ПРОВЕРКА ПРОФИЛЯ
+        async function checkUserProfile() {
+            let { data: profile } = await supabaseClient.from('users').select('*').eq('id', sessionUser.id).maybeSingle();
+            
+            if (!profile) {
+                document.getElementById('authBlock').style.display = 'none';
+                document.getElementById('nicknameModal').style.display = 'flex';
+            } else {
+                dbProfile = profile;
+                openDashboard();
+            }
+        }
+
+        // СОХРАНЕНИЕ НИКНЕЙМА
+        document.getElementById('saveNicknameBtn').addEventListener('click', async () => {
+            const nick = document.getElementById('newUsername').value.trim();
+            const msg = document.getElementById('modalMessage');
+            
+            if (nick.length < 3 || nick.length > 16) {
+                msg.innerText = "Ник должен быть от 3 до 16 символов!"; msg.style.color = "#e74c3c";
+                return;
+            }
+
+            let { data: exist } = await supabaseClient.from('users').select('username').eq('username', nick).maybeSingle();
+            if(exist) {
+                msg.innerText = "Этот никнейм уже занят!"; msg.style.color = "#e74c3c";
+                return;
+            }
+
+            const { data: newProfile, error } = await supabaseClient.from('users').insert([{ id: sessionUser.id, username: nick, password_hash: 'email_auth_secured' }]).select().single();
+            
+            if (!error) {
+                dbProfile = newProfile;
+                document.getElementById('nicknameModal').style.display = 'none';
+                openDashboard();
+            } else {
+                msg.innerText = "Ошибка сохранения: " + error.message;
+            }
+        });
+
+        // ОТКРЫТИЕ ЛИЧНОГО КАБИНЕТА
+        function openDashboard() {
+            document.getElementById('authBlock').style.display = 'none';
+            document.getElementById('nicknameModal').style.display = 'none';
+            document.getElementById('lkBlock').style.display = 'block';
+            document.getElementById('lkUsername').innerText = dbProfile.username;
+            document.getElementById('userBalance').innerText = dbProfile.balance || 0;
+            if(dbProfile.skin_url) {
+                document.getElementById('skinImg').src = dbProfile.skin_url;
+            }
+        }
+
+        // ЗАГРУЗКА .PNG СКИНА
+        document.getElementById('uploadSkinBtn').addEventListener('click', async () => {
+            const fileInput = document.getElementById('skinFile');
+            const msg = document.getElementById('lkMessage');
+            if (!fileInput.files.length) return;
+            
+            msg.innerText = "Смена скина..."; msg.style.color = "#fff";
+            const file = fileInput.files;
+            const fileName = dbProfile.username + "_skin.png";
+            
+            const { error: uploadError } = await supabaseClient.storage.from('skins').upload(fileName, file, { cacheControl: '0', upsert: true });
+            if (!uploadError) {
+                const { data } = supabaseClient.storage.from('skins').getPublicUrl(fileName);
+                await supabaseClient.from('users').update({ skin_url: data.publicUrl }).eq('id', dbProfile.id);
+                document.getElementById('skinImg').src = data.publicUrl + "?t=" + new Date().getTime();
+                msg.innerText = "Ваш личный скин успешно установлен!"; msg.style.color = "#2ecc71";
+            } else { msg.innerText = "Ошибка: " + uploadError.message; msg.style.color = "#e74c3c"; }
+        });
+
+        // СГЕНЕРИРОВАТЬ СЛУЧАЙНЫЙ СКИН
+        document.getElementById('generateSkinBtn').addEventListener('click', async () => {
+            const msg = document.getElementById('lkMessage');
+            msg.innerText = "Подбор образа..."; msg.style.color = "#fff";
+            
+            const randomNick = randomSkinNames[Math.floor(Math.random() * randomSkinNames.length)];
+            const generatedSkinUrl = "https://minotar.net" + randomNick + "/100.png";
+            
+            await supabaseClient.from('users').update({ skin_url: generatedSkinUrl }).eq('id', dbProfile.id);
+            
+            document.getElementById('skinImg').src = generatedSkinUrl;
+            msg.innerText = "Установлен образ игрока " + randomNick + "!"; msg.style.color = "#2ecc71";
+        });
+
+        // АКТИВАЦИЯ ПРОМОКОДА
+        document.getElementById('activatePromoBtn').addEventListener('click', async () => {
+            const codeInput = document.getElementById('promoInput').value.trim();
+            const msg = document.getElementById('lkMessage');
+            if(!codeInput) return;
+            
+            const { data: promo, error } = await supabaseClient.from('promocodes').select('*').eq('code', codeInput).single();
+            if (error || !promo || promo.uses_left <= 0) { msg.innerText = "Промокод не существует!"; msg.style.color = "#e74c3c"; return; }
+            
+            const { data: checkAct } = await supabaseClient.from('promocode_activations').select('*').eq('user_id', dbProfile.id).eq('promocode_id', promo.id).single();
+            if(checkAct) { msg.innerText = "Вы уже вводили этот код!"; msg.style.color = "#f39c12"; return; }
+            
+            const newBalance = dbProfile.balance + promo.reward_money;
+            await supabaseClient.from('users').update({ balance: newBalance }).eq('id', dbProfile.id);
+            await supabaseClient.from('promocode_activations').insert([{ user_id: dbProfile.id, promocode_id: promo.id }]);
+            await supabaseClient.from('promocodes').update({ uses_left: promo.uses_left - 1 }).eq('id', promo.id);
+            
+            dbProfile.balance = newBalance; document.getElementById('userBalance').innerText = newBalance;
+            msg.innerText = "Успешно! Получено +" + promo.reward_money + " монет."; msg.style.color = "#2ecc71";
+            document.getElementById('promoInput').value = "";
+        });
+
+        // ВЫХОД
+        document.getElementById('logoutBtn').addEventListener('click', async () => { await supabaseClient.auth.signOut(); window.location.reload(); });
+    </script>
+</body>
+</html>
