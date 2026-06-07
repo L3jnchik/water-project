@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Личный Кабинет — WaterProject</title>
     <link rel="stylesheet" href="https://cloudflare.com">
-    <script src="https://unpkg.com"></script>
+    <!-- Чистый скрипт Supabase SDK -->
+    <script src="https://jsdelivr.net"></script>
     <style>
         :root { --primary-color: #4fc3f7; --accent-color: #2ecc71; --dark-bg: rgba(15, 15, 15, 0.95); }
         body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url('https://alphacoders.com') no-repeat center center fixed; background-size: cover; color: #fff; }
@@ -22,6 +23,7 @@
         .btn { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.2s; }
         .btn-green { background: var(--accent-color); color: #fff; } .btn-green:hover { background: #27ae60; }
         .btn-blue { background: var(--primary-color); color: #000; } .btn-blue:hover { background: #29b6f6; }
+        .btn-orange { background: #e67e22; color: #fff; } .btn-orange:hover { background: #d35400; }
         .profile-header { display: flex; align-items: center; gap: 20px; background: #0a0a0a; padding: 20px; border-radius: 10px; border: 1px solid #222; margin-bottom: 20px; }
         .skin-preview { background: #050505; border: 2px dashed #333; height: 180px; width: 130px; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
         .skin-image { height: 95%; image-rendering: pixelated; }
@@ -42,17 +44,17 @@
         </div>
     </nav>
     <div class="main-container">
-        <!-- ЕДИНАЯ ФОРМА ВХОДА И РЕГИСТРАЦИИ -->
+        <!-- ФОРМА РЕГИСТРАЦИИ И ВХОДА (ПОЧТА, НИК, ПАРОЛЬ) -->
         <div id="authBlock" class="card" style="max-width: 400px; margin: 40px auto; display: block;">
-            <h3>Вход / Быстрая Регистрация</h3>
-            <p style="color: #888; font-size: 0.9rem;">Введите данные. Никнейм придумывается сразу при регистрации!</p>
+            <h3>Личный Кабинет проекта</h3>
+            <p style="color: #888; font-size: 0.9rem;">Вход или регистрация с подтверждением по Email.</p>
             <form onsubmit="return false;">
-                <input type="text" id="regNick" class="input-field" placeholder="Игровой Никнейм (3-16 симв.)">
-                <input type="email" id="email" class="input-field" placeholder="Ваш Email адрес" required>
-                <input type="password" id="password" class="input-field" placeholder="Пароль" required>
+                <input type="text" id="username" class="input-field" placeholder="Придумайте игровой никнейм" maxlength="16">
+                <input type="email" id="email" class="input-field" placeholder="Ваш реальный Email адрес" required>
+                <input type="password" id="password" class="input-field" placeholder="Придумайте пароль" required>
                 <div style="display: flex; gap: 10px; margin-top: 15px;">
                     <button type="button" id="loginBtn" class="btn btn-blue">Войти</button>
-                    <button type="button" id="regBtn" class="btn btn-green">Зарегистрироваться</button>
+                    <button type="button" id="regBtn" class="btn btn-green">Регистрация</button>
                 </div>
             </form>
             <div id="authMessage" class="status-msg"></div>
@@ -69,71 +71,138 @@
                     <div style="margin-top: 15px;"><button type="button" id="logoutBtn" class="btn btn-blue" style="width: auto; padding: 6px 15px; background: #e74c3c; color: #fff;"><i class="fa-solid fa-right-from-bracket"></i> Выйти</button></div>
                 </div>
             </div>
+            
+            <div class="grid-panel">
+                <div class="card">
+                    <h3>Кастомизация скина</h3>
+                    <button type="button" id="generateSkinBtn" class="btn btn-orange"><i class="fa-solid fa-shuffle"></i> Сгенерировать случайный скин</button>
+                </div>
+                <div class="card">
+                    <h3>Активация бонусов</h3>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <input type="text" id="promoInput" class="input-field" placeholder="Введите промокод" style="margin: 0;">
+                        <button type="button" id="activatePromoBtn" class="btn btn-green" style="width: auto; padding: 0 25px;">ОК</button>
+                    </div>
+                    <div id="lkMessage" class="status-msg"></div>
+                </div>
+            </div>
         </div>
     </div>
     <script>
         const SUPABASE_URL = "https://supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhqZWRmbHZvenJ5bXdlYXVлеW1rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MzEzMDIsImV4cCI6MjA5NjQwNzMwMn0.kMKJKd_BdtmCLJGYbk8VKUD2WxYwBQRgyGl_ZOvBm6M";
         
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        let sessionUser = null;
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        let currentUser = null;
 
-        // РЕГИСТРАЦИЯ ЧЕРЕЗ СЕРВЕРНУЮ ФУНКЦИЮ RPC (ОБХОД CORS БЕСПЛАТНО)
+        const randomSkinNames = ["FixEye", "Comp", "Scally", "Ronaldo", "MrBeast", "Dream", "Technoblade", "Frostdog", "Coffi", "EdisonPTS"];
+
+        // Автоматическая проверка сессии при входе на сайт
+        window.addEventListener('DOMContentLoaded', async () => {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session) {
+                await loadPlayerProfile(session.user.id);
+            }
+        });
+
+        // 1. РЕГИСТРАЦИЯ С ОФИЦИАЛЬНЫМ ПОДТВЕРЖДЕНИЕМ ПО ПОЧТЕ (КАК У GRIBLAND)
         document.getElementById('regBtn').addEventListener('click', async () => {
-            const nick = document.getElementById('regNick').value.trim();
+            const nick = document.getElementById('username').value.trim();
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const msg = document.getElementById('authMessage');
-            
-            if(nick.length < 3 || !email || !password) { msg.innerText = "Заполните все поля и ник!"; msg.style.color = "#e74c3c"; return; }
-            msg.innerText = "Создание аккаунта..."; msg.style.color = "#fff";
 
-            // Вызываем созданную нами функцию register_new_player напрямую в Supabase
-            const { data, error } = await supabaseClient.rpc('register_new_player', {
-                player_email: email,
-                player_password: password,
-                player_nick: nick
+            if (nick.length < 3 || !email || !password) {
+                msg.innerText = "Заполните ник, почту и пароль!"; msg.style.color = "#e74c3c";
+                return;
+            }
+
+            msg.innerText = "Отправка запроса..."; msg.style.color = "#fff";
+
+            // Проверяем, не занят ли игровой никнейм в таблице users
+            let { data: exist } = await supabaseClient.from('users').select('username').eq('username', nick).maybeSingle();
+            if (exist) {
+                msg.innerText = "Этот никнейм уже занят!"; msg.style.color = "#e74c3c";
+                return;
+            }
+
+            // Запускаем встроенную регистрацию Supabase Auth с отправкой письма подтверждения
+            const { data, error } = await supabaseClient.auth.signUp({
+                email: email,
+                password: password,
+                options: {
+                    // Передаем игровой ник в метаданные аккаунта
+                    data: { display_name: nick }
+                }
             });
 
-            if (error || data !== 'Success') {
-                msg.innerText = "Ошибка: " + (error ? error.message : data);
-                msg.style.color = "#e74c3c";
+            if (error) {
+                msg.innerText = "Ошибка: " + error.message; msg.style.color = "#e74c3c";
             } else {
-                msg.innerText = "Вы успешно зарегистрированы! Теперь нажмите кнопку 'Войти'.";
+                msg.innerText = "Успех! На вашу почту отправлено письмо. Подтвердите вход по ссылке и войдите на сайт!";
                 msg.style.color = "#2ecc71";
             }
         });
 
-        // ВХОД В ЛИЧНЫЙ КАБИНЕТ
+        // 2. ВХОД В ЛИЧНЫЙ КАБИНЕТ (ПУСТИТ ТОЛЬКО ЕСЛИ ПОЧТА ПОДТВЕРЖДЕНА)
         document.getElementById('loginBtn').addEventListener('click', async () => {
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const msg = document.getElementById('authMessage');
-            if(!email || !password) return;
+            if (!email || !password) return;
 
-            msg.innerText = "Авторизация..."; msg.style.color = "#fff";
+            msg.innerText = "Вход..."; msg.style.color = "#fff";
 
             const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
             if (error) {
-                msg.innerText = "Неверная почта или пароль!"; msg.style.color = "#e74c3c";
+                msg.innerText = "Ошибка: " + error.message; msg.style.color = "#e74c3c";
             } else {
-                sessionUser = data.user;
-                // Загружаем профиль из таблицы users
-                let { data: profile } = await supabaseClient.from('users').select('*').eq('id', sessionUser.id).single();
-                showDashboard(profile);
+                await loadPlayerProfile(data.user.id);
             }
         });
 
-        function showDashboard(profile) {
-            document.getElementById('authBlock').style.display = 'none';
-            document.getElementById('lkBlock').style.display = 'block';
-            document.getElementById('lkUsername').innerText = profile.username;
-            document.getElementById('userBalance').innerText = profile.balance || 0;
-            if(profile.skin_url) document.getElementById('skinImg').src = profile.skin_url;
+        // ЗАГРУЗКА И СИНХРОНИЗАЦИЯ ПРОФИЛЯ
+        async function loadPlayerProfile(userId) {
+            // Ищем игрока в нашей публичной таблице users
+            let { data: profile } = await supabaseClient.from('users').select('*').eq('id', userId).maybeSingle();
+
+            // Если почту подтвердили впервые, строки в users еще нет — создаем её автоматически
+            if (!profile) {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                let metaNick = user.user_metadata.display_name || user.email.split('@')[0];
+
+                const { data: newProfile } = await supabaseClient.from('users').insert([
+                    { id: userId, username: metaNick, password_hash: 'email_verified_secured' }
+                ]).select().single();
+                profile = newProfile;
+            }
+
+            currentUser = profile;
+            showDashboard();
         }
 
-        document.getElementById('logoutBtn').addEventListener('click', () => { window.location.reload(); });
+        function showDashboard() {
+            document.getElementById('authBlock').style.display = 'none';
+            document.getElementById('lkBlock').style.display = 'block';
+            document.getElementById('lkUsername').innerText = currentUser.username;
+            document.getElementById('userBalance').innerText = currentUser.balance || 0;
+            if (currentUser.skin_url) document.getElementById('skinImg').src = currentUser.skin_url;
+        }
+
+        // КНОПКА ГЕНЕРАЦИИ СКИНА
+        document.getElementById('generateSkinBtn').addEventListener('click', async () => {
+            const randomNick = randomSkinNames[Math.floor(Math.random() * randomSkinNames.length)];
+            const generatedSkinUrl = "https://minotar.net" + randomNick + "/100.png";
+            
+            await supabaseClient.from('users').update({ skin_url: generatedSkinUrl }).eq('id', currentUser.id);
+            document.getElementById('skinImg').src = generatedSkinUrl;
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await supabaseClient.auth.signOut();
+            window.location.reload();
+        });
     </script>
 </body>
 </html>
