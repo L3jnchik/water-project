@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Личный Кабинет — WaterProject</title>
-    <!-- Подключение FontAwesome для иконок -->
     <link rel="stylesheet" href="https://cloudflare.com">
     <script src="https://unpkg.com"></script>
     <style>
@@ -14,21 +13,40 @@
         nav .brand { font-size: 1.8rem; font-weight: bold; color: var(--primary-color); text-decoration: none; }
         nav .menu-links a { color: #bbb; text-decoration: none; margin-left: 25px; font-weight: 500; }
         nav .menu-links a:hover, nav .menu-links a.active { color: var(--primary-color); }
-        .main-container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
-        .grid-panel { display: grid; grid-template-columns: 1fr 2fr; gap: 30px; }
+        
+        .main-container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+        .grid-panel { display: grid; grid-template-columns: 1.2fr 2fr; gap: 30px; }
         @media (max-width: 900px) { .grid-panel { grid-template-columns: 1fr; } }
+        
         .card { background: var(--dark-bg); border: 1px solid #333; border-radius: 12px; padding: 25px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+        .card h3 { margin-top: 0; color: var(--primary-color); border-bottom: 1px solid #222; padding-bottom: 10px; }
+        
         .input-field { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #444; border-radius: 6px; background: #050505; color: #fff; box-sizing: border-box; }
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn-green { background: var(--accent-color); color: #fff; } .btn-blue { background: var(--primary-color); color: #000; }
-        .btn-google { background: #fff; color: #000; margin-top: 15px; }
-        .skin-preview { background: #050505; border: 2px dashed #333; height: 300px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
-        .skin-image { height: 90%; image-rendering: pixelated; }
-        .balance-badge { background: #f39c12; color: #000; padding: 6px 18px; border-radius: 20px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
-        .hidden { display: none; } .status-msg { text-align: center; font-weight: bold; margin-top: 15px; }
+        .input-field:focus { border-color: var(--primary-color); outline: none; }
+        
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.2s; }
+        .btn-green { background: var(--accent-color); color: #fff; } .btn-green:hover { background: #27ae60; }
+        .btn-blue { background: var(--primary-color); color: #000; } .btn-blue:hover { background: #29b6f6; }
+        .btn-orange { background: #e67e22; color: #fff; } .btn-orange:hover { background: #d35400; }
+        
+        /* Профиль в стиле Грибланда */
+        .profile-header { display: flex; align-items: center; gap: 20px; background: #0a0a0a; padding: 20px; border-radius: 10px; border: 1px solid #222; margin-bottom: 20px; }
+        .skin-preview { background: #050505; border: 2px dashed #333; height: 180px; width: 130px; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
+        .skin-image { height: 95%; image-rendering: pixelated; }
+        .profile-info { flex-grow: 1; text-align: left; }
+        .profile-info h2 { margin: 0 0 10px 0; color: var(--primary-color); font-size: 1.6rem; }
+        .balance-badge { background: #f39c12; color: #000; padding: 8px 16px; border-radius: 6px; font-weight: bold; display: inline-flex; align-items: center; gap: 8px; font-size: 1.1rem; }
+        
+        .hidden { display: none; } 
+        .status-msg { text-align: center; font-weight: bold; margin-top: 15px; }
+
+        /* Стили для всплывающего окна выбора никнейма */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-card { background: #111; border: 2px solid var(--primary-color); border-radius: 12px; padding: 30px; width: 350px; text-align: center; box-shadow: 0 0 20px var(--primary-color); }
     </style>
 </head>
 <body>
+
     <nav>
         <a href="index.html" class="brand">🌊 WATERPROJECT</a>
         <div class="menu-links">
@@ -38,129 +56,93 @@
             <a href="lk.html" class="active"><i class="fa-solid fa-circle-user"></i> Личный кабинет</a>
         </div>
     </nav>
+
     <div class="main-container">
-        <!-- Вход/Регистрация -->
-        <div id="authBlock" class="card" style="max-width: 400px; margin: 0 auto;">
-            <h3 style="color: var(--primary-color); margin-top:0;">Вход в аккаунт</h3>
+        
+        <!-- ШАГ 1: ВХОД И РЕГИСТРАЦИЯ ПО ПОЧТЕ -->
+        <div id="authBlock" class="card" style="max-width: 400px; margin: 40px auto;">
+            <h3>Вход / Регистрация по Email</h3>
+            <p style="color: #888; font-size: 0.9rem;">Используйте реальную почту. На неё придёт подтверждение.</p>
             <form onsubmit="return false;">
-                <input type="email" id="email" class="input-field" placeholder="Ваш Email" required>
+                <input type="email" id="email" class="input-field" placeholder="Ваш Email адрес" required>
                 <input type="password" id="password" class="input-field" placeholder="Пароль" required>
                 <div style="display: flex; gap: 10px; margin-top: 15px;">
                     <button type="button" id="loginBtn" class="btn btn-blue">Войти</button>
                     <button type="button" id="regBtn" class="btn btn-green">Регистрация</button>
                 </div>
             </form>
-            <button type="button" id="googleBtn" class="btn btn-google">
-                <img src="https://gstatic.com" alt="Google" width="18"> Войти через Google
-            </button>
             <div id="authMessage" class="status-msg"></div>
         </div>
 
-        <!-- Управление профилем -->
-        <div id="lkBlock" class="grid-panel hidden">
-            <div class="card" style="text-align: center;">
-                <h3 style="color: var(--primary-color); margin-top:0;">Профиль</h3>
-                <div class="balance-badge"><i class="fa-solid fa-coins"></i> Баланс: <span id="userBalance">0</span> монет</div>
-                <div class="skin-preview"><img id="skinImg" class="skin-image" src="https://minotar.net" alt="Skin"></div>
-                <p id="lkUsername" style="font-size: 1.3rem; font-weight: bold; margin: 0; color: var(--primary-color);"></p>
-                <button type="button" id="logoutBtn" class="btn btn-blue" style="margin-top: 20px; background: #e74c3c; color: white;">Выйти</button>
-            </div>
-            <div class="card">
-                <h3 style="color: var(--primary-color); margin-top:0;">Настройки персонажа</h3>
-                <div style="margin-bottom: 25px;">
-                    <label style="font-weight: bold; display: block; margin-bottom: 8px;"><i class="fa-solid fa-shirt"></i> Установить скин (.PNG)</label>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="file" id="skinFile" accept=".png" class="input-field" style="margin:0; padding: 8px;">
-                        <button type="button" id="uploadSkinBtn" class="btn btn-blue" style="width: auto; padding: 0 20px;">Загрузить</button>
-                    </div>
-                </div>
-                <div>
-                    <label style="font-weight: bold; display: block; margin-bottom: 8px;"><i class="fa-solid fa-ticket"></i> Активировать промокод</label>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="text" id="promoInput" class="input-field" placeholder="Введите промокод" style="margin: 0;">
-                        <button type="button" id="activatePromoBtn" class="btn btn-green" style="width: auto; padding: 0 25px;">ОК</button>
-                    </div>
-                </div>
-                <div id="lkMessage" class="status-msg"></div>
+        <!-- ШАГ 2: ВСПЛЫВАЮЩЕЕ ОКНО ВЫБОРА НИКНЕЙМА (ПОКАЗЫВАЕТСЯ ЕСЛИ НЕТ НИКА) -->
+        <div id="nicknameModal" class="modal-overlay hidden">
+            <div class="modal-card">
+                <h3 style="color: var(--primary-color); margin: 0 0 10px 0;"><i class="fa-solid fa-gamepad"></i> Создание профиля</h3>
+                <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 20px;">Придумайте никнейм для отображения в игре и на сервере.</p>
+                <input type="text" id="newUsername" class="input-field" placeholder="Игровой ник (3-16 симв.)" maxlength="16">
+                <button type="button" id="saveNicknameBtn" class="btn btn-green" style="margin-top: 15px;">Начать игру</button>
+                <div id="modalMessage" class="status-msg"></div>
             </div>
         </div>
+
+        <!-- ШАГ 3: ЛИЧНЫЙ КАБИНЕТ (ПРОФИЛЬ + НАСТРОЙКИ) -->
+        <div id="lkBlock" class="hidden">
+            
+            <!-- Профиль в стиле Грибланда: Скин + Ник и Баланс РЯДОМ -->
+            <div class="profile-header">
+                <div class="skin-preview">
+                    <img id="skinImg" class="skin-image" src="https://minotar.net" alt="Skin">
+                </div>
+                <div class="profile-info">
+                    <p style="color: #666; font-size: 0.9rem; margin: 0 0 5px 0; text-transform: uppercase; font-weight: bold;">Игровой профиль</p>
+                    <h2 id="lkUsername">Загрузка...</h2>
+                    <div class="balance-badge">
+                        <i class="fa-solid fa-coins" style="color: #fff;"></i> Баланс: <span id="userBalance">0</span> монет
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <button type="button" id="logoutBtn" class="btn btn-blue" style="width: auto; padding: 6px 15px; background: #e74c3c; color: #fff; font-size: 0.85rem;"><i class="fa-solid fa-right-from-bracket"></i> Выйти</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Нижняя панель управления -->
+            <div class="grid-panel">
+                <!-- Блок изменения внешности -->
+                <div class="card">
+                    <h3>Кастомизация скина</h3>
+                    
+                    <!-- Кнопка ручной загрузки -->
+                    <div style="margin-bottom: 20px;">
+                        <label style="font-weight: bold; display: block; margin-bottom: 8px; font-size: 0.9rem;"><i class="fa-solid fa-file-arrow-up"></i> Загрузить свой скин (.PNG)</label>
+                        <input type="file" id="skinFile" accept=".png" class="input-field" style="padding: 6px;">
+                        <button type="button" id="uploadSkinBtn" class="btn btn-blue" style="font-size: 0.9rem; padding: 10px;">Применить файл</button>
+                    </div>
+
+                    <!-- Кнопка генерации случайного скина -->
+                    <div style="border-top: 1px solid #222; padding-top: 20px;">
+                        <label style="font-weight: bold; display: block; margin-bottom: 8px; font-size: 0.9rem;"><i class="fa-solid fa-wand-magic-sparkles"></i> Нет своего скина?</label>
+                        <button type="button" id="generateSkinBtn" class="btn btn-orange" style="font-size: 0.9rem; padding: 10px;"><i class="fa-solid fa-shuffle"></i> Сгенерировать случайный</button>
+                    </div>
+                </div>
+
+                <!-- Блок промокодов -->
+                <div class="card">
+                    <h3>Активация бонусов</h3>
+                    <p style="color: #888; font-size: 0.9rem;">Введите секретный промокод проекта, чтобы мгновенно пополнить свой баланс монет.</p>
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <input type="text" id="promoInput" class="input-field" placeholder="Введите промокод" style="margin: 0;">
+                        <button type="button" id="activatePromoBtn" class="btn btn-green" style="width: auto; padding: 0 30px;">Активировать</button>
+                    </div>
+                    <div id="lkMessage" class="status-msg"></div>
+                </div>
+            </div>
+
+        </div>
+
     </div>
 
     <script>
-        const SUPABASE_URL = "https://hqedflvozrymweaueymk.supabase.co";
-        const SUPABASE_KEY = "sb_publishable_AhbI07QUWbsjEy-16VJ4zw_ymUbQ7sL";
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        let sessionUser = null;
-
-        // Функция проверки почты и переключения экранов
-        async function checkVerificationAndOpen(user) {
-            const msg = document.getElementById('authMessage');
-            
-            // Если у пользователя нет метки времени подтверждения почты
-            if (!user.email_confirmed_at) {
-                msg.innerText = "Пожалуйста, подтвердите ваш Email на почте перед входом!";
-                msg.style.color = "#f39c12";
-                
-                // Выходим из сессии, чтобы неавторизованный статус сохранялся
-                await supabaseClient.auth.signOut();
-                return;
-            }
-
-            // Если всё подтверждено — пускаем в ЛК
-            sessionUser = user;
-            document.getElementById('authBlock').classList.add('hidden');
-            document.getElementById('lkBlock').classList.remove('hidden');
-            document.getElementById('lkUsername').innerText = user.email;
-            msg.innerText = "";
-        }
-
-        window.addEventListener('DOMContentLoaded', async () => {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (session && session.user) { 
-                await checkVerificationAndOpen(session.user); 
-            }
-        });
-
-        document.getElementById('loginBtn').addEventListener('click', async () => {
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            const msg = document.getElementById('authMessage');
-            
-            if(!email || !password) return;
-            msg.innerText = "Вход...";
-            msg.style.color = "#fff";
-
-            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-            
-            if (error) { 
-                msg.innerText = "Ошибка: " + error.message; 
-                msg.style.color = "#e74c3c"; 
-            } else if (data.user) { 
-                await checkVerificationAndOpen(data.user); 
-            }
-        });
-
-        document.getElementById('regBtn').addEventListener('click', async () => {
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            const msg = document.getElementById('authMessage');
-            
-            if(!email || !password) return;
-            msg.innerText = "Регистрация...";
-            msg.style.color = "#fff";
-
-            const { data, error } = await supabaseClient.auth.signUp({ email, password });
-            
-            if (error) { 
-                msg.innerText = "Ошибка: " + error.message; 
-                msg.style.color = "#e74c3c"; 
-            } else { 
-                msg.innerText = "Успех! Письмо отправлено. Проверьте почту для активации."; 
-                msg.style.color = "#2ecc71"; 
-            }
-        });
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
-            await supabaseClient.auth.signOut();
-            sessionUser = null;
-            document.getElementById('lkBlock').classList.add('hidden');
-document.getElementById('authBlock').classList.remove('hidden');document.getElementById('email').value = "";document.getElementById('password').value = "";});
+        // НАСТРОЙКА СВЯЗИ С БАЗОЙ ДАННЫХ SUPABASE
+        const SUPABASE_URL = "ВСТАВЬТЕ_СЮДА_ВАШ_PROJECT_URL";
+        const SUPABASE_KEY = "ВСТАВЬТЕ_СЮДА_ВАШ_ANON_PUBLIC_KEY";
+ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);let sessionUser = null;let dbProfile = null;// Список крутых никнеймов скинов для автогенерации (взяты популярные скины игроков)const randomSkinNames = ["FixEye", "Comp", "Scally", "Ronaldo", "MrBeast", "Dream", "Technoblade", "Frostdog", "Coffi", "EdisonPTS"];window.addEventListener('DOMContentLoaded', async () => {const { data: { session } } = await supabaseClient.auth.getSession();if (session) {sessionUser = session.user;await checkUserProfile();}});// ВХОДdocument.getElementById('loginBtn').addEventListener('click', async () => {const email = document.getElementById('email').value.trim();const password = document.getElementById('password').value;const msg = document.getElementById('authMessage');if(!email || !password) return;msg.innerText = "Проверка данных..."; msg.style.color = "#fff";const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });if (error) { msg.innerText = "Ошибка: " + error.message; msg.style.color = "#e74c3c"; }else { sessionUser = data.user; await checkUserProfile(); }});// РЕГИСТРАЦИЯdocument.getElementById('regBtn').addEventListener('click', async () => {const email = document.getElementById('email').value.trim();const password = document.getElementById('password').value;const msg = document.getElementById('authMessage');if(!email || !password) return;msg.innerText = "Регистрация..."; msg.style.color = "#fff";const { data, error } = await supabaseClient.auth.signUp({ email, password });if (error) { msg.innerText = "Ошибка: " + error.message; msg.style.color = "#e74c3c"; }else { msg.innerText = "Успех! Письмо отправлено вам на почту. Подтвердите вход и обновите страницу."; msg.style.color = "#2ecc71"; }});// ПРОВЕРКА ПРОФИЛЯ НА НАЛИЧИЕ НИКНЕЙМАasync function checkUserProfile() {// Ищем профиль в таблице users по email_id или связкеlet { data: profile } = await supabaseClient.from('users').select('*').eq('id', sessionUser.id).maybeSingle();// Если профиля старого формата нет, ищем по кастомному текстовому совпадению или создаемif (!profile) {// Показываем модальное окно ввода никнеймаdocument.getElementById('authBlock').classList.add('hidden');document.getElementById('nicknameModal').classList.remove('hidden');} else {dbProfile = profile;openDashboard();}}// СОХРАНЕНИЕ КАСТОМНОГО НИКНЕЙМА СЕРВЕРАdocument.getElementById('saveNicknameBtn').addEventListener('click', async () => {const nick = document.getElementById('newUsername').value.trim();const msg = document.getElementById('modalMessage');if (nick.length < 3 || nick.length > 16) {msg.innerText = "Ник должен быть от 3 до 16 символов!"; msg.style.color = "#e74c3c";return;}// Проверяем, не занят ли ник кем-то другимlet { data: exist } = await supabaseClient.from('users').select('username').eq('username', nick).maybeSingle();if(exist) {msg.innerText = "Этот никнейм уже занят другим игроком!"; msg.style.color = "#e74c3c";return;}// Вставляем чистый профиль в таблицу пользователейconst { data: newProfile, error } = await supabaseClient.from('users').insert([{ id: sessionUser.id, username: nick, password_hash: 'email_auth_secured' }]).select().single();if (!error) {dbProfile = newProfile;document.getElementById('nicknameModal').classList.add('hidden');openDashboard();} else {msg.innerText = "Ошибка сохранения: " + error.message;}});// ЗАПУСК ЛИЧНОГО КАБИНЕТАfunction openDashboard() {document.getElementById('authBlock').classList.add('hidden');document.getElementById('lkBlock').classList.remove('hidden');document.getElementById('lkUsername').innerText = dbProfile.username;document.getElementById('userBalance').innerText = dbProfile.balance || 0;if(dbProfile.skin_url) {document.getElementById('skinImg').src = dbProfile.skin_url;}}// КНОПКА: ЗАГРУЗИТЬ СВОЙ СКИНdocument.getElementById('uploadSkinBtn').addEventListener('click', async () => {const fileInput = document.getElementById('skinFile');const msg = document.getElementById('lkMessage');if (!fileInput.files.length) return;msg.innerText = "Смена скина..."; msg.style.color = "#fff";const file = fileInput.files[0];const fileName = ${dbProfile.username}_skin.png;const { error: uploadError } = await supabaseClient.storage.from('skins').upload(fileName, file, { cacheControl: '0', upsert: true });if (!uploadError) {const { data } = supabaseClient.storage.from('skins').getPublicUrl(fileName);await supabaseClient.from('users').update({ skin_url: data.publicUrl }).eq('id', dbProfile.id);document.getElementById('skinImg').src = data.publicUrl + "?t=" + new Date().getTime();msg.innerText = "Ваш личный скин успешно установлен!"; msg.style.color = "#2ecc71";} else { msg.innerText = "Ошибка загрузки: " + uploadError.message; msg.style.color = "#e74c3c"; }});// КНОПКА: СГЕНЕРИРОВАТЬ СЛУЧАЙНЫЙ СКИНdocument.getElementById('generateSkinBtn').addEventListener('click', async () => {const msg = document.getElementById('lkMessage');msg.innerText = "Подбор образа..."; msg.style.color = "#fff";// Выбираем случайное имя игрока из нашего массиваconst randomNick = randomSkinNames[Math.floor(Math.random() * randomSkinNames.length)];// Генерируем ссылку на развернутый красивый аватар тела через систему Minotarconst generatedSkinUrl = https://minotar.net{randomNick}/100.png;// Обновляем данные в базе данных Supabaseawait supabaseClient.from('users').update({ skin_url: generatedSkinUrl }).eq('id', dbProfile.id);// Меняем картинку на экранеdocument.getElementById('skinImg').src = generatedSkinUrl;msg.innerText = Вам установлен образ игрока ${randomNick}!; msg.style.color = "#2ecc71";});// АКТИВАЦИЯ ПРОМОКОДАdocument.getElementById('activatePromoBtn').addEventListener('click', async () => {const codeInput = document.getElementById('promoInput').value.trim();const msg = document.getElementById('lkMessage');if(!codeInput) return;const { data: promo, error } = await supabaseClient.from('promocodes').select('*').eq('code', codeInput).single();if (error || !promo || promo.uses_left <= 0) { msg.innerText = "Промокод не существует!"; msg.style.color = "#e74c3c"; return; }const { data: checkAct } = await supabaseClient.from('promocode_activations').select('*').eq('user_id', dbProfile.id).eq('promocode_id', promo.id).single();if(checkAct) { msg.innerText = "Вы уже вводили этот код!"; msg.style.color = "#f39c12"; return; }const newBalance = dbProfile.balance + promo.reward_money;await supabaseClient.from('users').update({ balance: newBalance }).eq('id', dbProfile.id);await supabaseClient.from('promocode_activations').insert([{ user_id: dbProfile.id, promocode_id: promo.id }]);await supabaseClient.from('promocodes').update({ uses_left: promo.uses_left - 1 }).eq('id', promo.id);dbProfile.balance = newBalance; document.getElementById('userBalance').innerText = newBalance;msg.innerText = Успешно! Получено +${promo.reward_money} монет.; msg.style.color = "#2ecc71";document.getElementById('promoInput').value = "";});// ВЫХОДdocument.getElementById('logoutBtn').addEventListener('click', async () => { await supabaseClient.auth.signOut(); window.location.reload(); });       
