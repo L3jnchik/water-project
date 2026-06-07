@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Новости — WaterProject</title>
+    <link rel="stylesheet" href="https://cloudflare.com">
+    <style>
+        :root { --primary-color: #4fc3f7; --dark-bg: rgba(15, 15, 15, 0.95); }
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url('https://alphacoders.com') no-repeat center center fixed; background-size: cover; color: #fff; }
+        nav { background: #0a0a0a; padding: 15px 50px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #222; }
+        nav .brand { font-size: 1.8rem; font-weight: bold; color: var(--primary-color); text-decoration: none; }
+        nav .menu-links a { color: #bbb; text-decoration: none; margin-left: 25px; font-weight: 500; }
+        nav .menu-links a:hover, nav .menu-links a.active { color: var(--primary-color); }
+        .container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+        .news-card { background: var(--dark-bg); border-left: 5px solid var(--primary-color); border-radius: 4px; padding: 25px; margin-bottom: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .news-date { font-size: 0.85rem; color: #888; margin-bottom: 10px; }
+        h2 { color: var(--primary-color); margin-top: 0; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="brand">🌊 WATERPROJECT</a>
+        <div class="menu-links">
+            <a href="index.html"><i class="fa-solid fa-house"></i> Главная</a>
+            <a href="news.html" class="active"><i class="fa-solid fa-newspaper"></i> Новости</a>
+            <a href="media.html"><i class="fa-solid fa-photo-film"></i> Медиа</a>
+            <a href="lk.html"><i class="fa-solid fa-circle-user"></i> Личный кабинет</a>
+        </div>
+    </nav>
+    <div class="container">
+        <h2>Лента новостей проекта</h2>
+        <div class="news-card">
+            <div class="news-date">Июнь 2026 г.</div>
+            <h3>Глобальный вайп и обновление 1.16.5!</h3>
+            <p>Мы рады объявить о завершении технических работ. Полностью обновлена генерация мира, добавлены новые квесты и проведена оптимизация кастомного лаунчера. Ждем всех на сервере!</p>
+        </div>
+    </div>
+</body>
+</html>
