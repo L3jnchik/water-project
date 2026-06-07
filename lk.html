@@ -19,6 +19,7 @@
     </style>
 </head>
 <body>
+
     <nav>
         <a href="#" class="brand">🌊 WATERPROJECT</a>
     </nav>
@@ -54,7 +55,7 @@
             msg.style.color = "#fff";
 
             try {
-                // Стабильный HTTP-запрос, который разрешен всеми браузерами
+                // Прямой сетевой шлюз, который разрешен всеми браузерами в РФ
                 const response = await fetch(SUPABASE_REST_URL, {
                     method: 'POST',
                     headers: {
@@ -81,7 +82,7 @@
                     msg.style.color = "#e74c3c";
                 }
             } catch (e) {
-                msg.innerText = "Ошибка сети при связи с Supabase.";
+                msg.innerText = "Ошибка сети при связи с базой данных.";
                 msg.style.color = "#e74c3c";
                 console.error(e);
             }
