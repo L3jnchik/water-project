@@ -4,181 +4,91 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Личный Кабинет — WaterProject</title>
-    <!-- Надежное подключение иконок FontAwesome -->
-   <script src="https://cloudflare.com"></script>
-    <!-- ИСПРАВЛЕНО: Безопасное подключение Supabase через глобальный шлюз unpkg -->
-    <script src="https://unpkg.com"></script>
+    <link rel="stylesheet" href="https://cloudflare.com">
     <style>
         :root { --primary-color: #4fc3f7; --accent-color: #2ecc71; --dark-bg: rgba(15, 15, 15, 0.95); }
         body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url('https://alphacoders.com') no-repeat center center fixed; background-size: cover; color: #fff; }
         nav { background: #0a0a0a; padding: 15px 50px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #222; }
         nav .brand { font-size: 1.8rem; font-weight: bold; color: var(--primary-color); text-decoration: none; }
-        nav .menu-links a { color: #bbb; text-decoration: none; margin-left: 25px; font-weight: 500; }
-        nav .menu-links a:hover, nav .menu-links a.active { color: var(--primary-color); }
-        .main-container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
-        .grid-panel { display: grid; grid-template-columns: 1.2fr 2fr; gap: 30px; }
-        @media (max-width: 900px) { .grid-panel { grid-template-columns: 1fr; } }
-        .card { background: var(--dark-bg); border: 1px solid #333; border-radius: 12px; padding: 25px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
-        .card h3 { margin-top: 0; color: var(--primary-color); border-bottom: 1px solid #222; padding-bottom: 10px; }
+        .main-container { max-width: 400px; margin: 80px auto; padding: 0 20px; }
+        .card { background: var(--dark-bg); border: 1px solid #333; border-radius: 12px; padding: 25px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); text-align: center; }
         .input-field { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #444; border-radius: 6px; background: #050505; color: #fff; box-sizing: border-box; }
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.2s; }
-        .btn-green { background: var(--accent-color); color: #fff; } .btn-green:hover { background: #27ae60; }
-        .btn-blue { background: var(--primary-color); color: #000; } .btn-blue:hover { background: #29b6f6; }
-        .btn-orange { background: #e67e22; color: #fff; } .btn-orange:hover { background: #d35400; }
-        .profile-header { display: flex; align-items: center; gap: 20px; background: #0a0a0a; padding: 20px; border-radius: 10px; border: 1px solid #222; margin-bottom: 20px; }
-        .skin-preview { background: #050505; border: 2px dashed #333; height: 180px; width: 130px; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
-        .skin-image { height: 95%; image-rendering: pixelated; }
-        .profile-info { flex-grow: 1; text-align: left; }
-        .profile-info h2 { margin: 0 0 10px 0; color: var(--primary-color); font-size: 1.6rem; }
-        .balance-badge { background: #f39c12; color: #000; padding: 8px 16px; border-radius: 6px; font-weight: bold; display: inline-flex; align-items: center; gap: 8px; font-size: 1.1rem; }
-        .status-msg { text-align: center; font-weight: bold; margin-top: 15px; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
+        .btn-green { background: var(--accent-color); color: #fff; }
+        .status-msg { margin-top: 15px; font-weight: bold; }
     </style>
 </head>
 <body>
+
     <nav>
-        <a href="index.html" class="brand">🌊 WATERPROJECT</a>
-        <div class="menu-links">
-            <a href="index.html"><i class="fa-solid fa-house"></i> Главная</a>
-            <a href="news.html"><i class="fa-solid fa-newspaper"></i> Новости</a>
-            <a href="media.html"><i class="fa-solid fa-photo-film"></i> Медиа</a>
-            <a href="lk.html" class="active"><i class="fa-solid fa-circle-user"></i> Личный кабинет</a>
-        </div>
+        <a href="#" class="brand">🌊 WATERPROJECT</a>
     </nav>
+
     <div class="main-container">
-        <!-- ФОРМА АВТОРИЗАЦИИ (НИКНЕЙМ И ПАРОЛЬ) -->
-        <div id="authBlock" class="card" style="max-width: 400px; margin: 40px auto; display: block;">
-            <h3>Вход / Регистрация профиля</h3>
-            <p style="color: #888; font-size: 0.9rem;">Придумайте никнейм и пароль для игры на сервере.</p>
+        <div id="authBlock" class="card">
+            <h3>Регистрация на сервере</h3>
+            <p style="color: #888; font-size: 0.9rem;">Придумайте никнейм и пароль для игры.</p>
             <form onsubmit="return false;">
-                <input type="text" id="username" class="input-field" placeholder="Ваш никнейм Minecraft" required maxlength="16">
-                <input type="password" id="password" class="input-field" placeholder="Ваш пароль" required>
-                <div style="display: flex; gap: 10px; margin-top: 15px;">
-                    <button type="button" id="loginBtn" class="btn btn-blue">Войти</button>
-                    <button type="button" id="regBtn" class="btn btn-green">Регистрация</button>
-                </div>
+                <input type="text" id="username" class="input-field" placeholder="Ваш никнейм Minecraft" maxlength="16">
+                <input type="password" id="password" class="input-field" placeholder="Создайте пароль">
+                <button type="button" id="regBtn" class="btn btn-green">Зарегистрироваться</button>
             </form>
             <div id="authMessage" class="status-msg"></div>
         </div>
-
-        <!-- ПАНЕЛЬ ПРОФИЛЯ -->
-        <div id="lkBlock" style="display: none;">
-            <div class="profile-header">
-                <div class="skin-preview"><img id="skinImg" class="skin-image" src="https://minotar.net" alt="Skin"></div>
-                <div class="profile-info">
-                    <p style="color: #666; font-size: 0.9rem; margin: 0 0 5px 0; text-transform: uppercase; font-weight: bold;">Игровой профиль</p>
-                    <h2 id="lkUsername">Загрузка...</h2>
-                    <div class="balance-badge"><i class="fa-solid fa-coins"></i> Баланс: <span id="userBalance">0</span> монет</div>
-                    <div style="margin-top: 15px;"><button type="button" id="logoutBtn" class="btn btn-blue" style="width: auto; padding: 6px 15px; background: #e74c3c; color: #fff;"><i class="fa-solid fa-right-from-bracket"></i> Выйти</button></div>
-                </div>
-            </div>
-            
-            <div class="grid-panel">
-                <div class="card">
-                    <h3>Кастомизация скина</h3>
-                    <button type="button" id="generateSkinBtn" class="btn btn-orange"><i class="fa-solid fa-shuffle"></i> Сгенерировать случайный скин</button>
-                </div>
-                <div class="card">
-                    <h3>Активация бонусов</h3>
-                    <div style="display: flex; gap: 10px; margin-top: 10px;">
-                        <input type="text" id="promoInput" class="input-field" placeholder="Введите промокод" style="margin: 0;">
-                        <button type="button" id="activatePromoBtn" class="btn btn-green" style="width: auto; padding: 0 25px;">ОК</button>
-                    </div>
-                    <div id="lkMessage" class="status-msg"></div>
-                </div>
-            </div>
-        </div>
     </div>
+
+    <!-- ЧИСТЫЙ JAVASCRIPT БЕЗ ВНЕШНИХ БИБЛИОТЕК И СБОЕВ -->
     <script>
-        const SUPABASE_URL = "https://supabase.co";
-        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhqZWRmbHZvenJ5bXdlYXVleW1rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MzEzMDIsImV4cCI6MjA5NjQwNzMwMn0.kMKJKd_BdtmCLJGYbk8VKUD2WxYwBQRgyGl_ZOvBm6M";
-        
-        // Исправлено: Явное и стабильное создание подключения
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        let currentUser = null;
+        const SUPABASE_REST_URL = "https://supabase.co";
+        const SUPABASE_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhqZWRmbHZvenJ5bXdlYXVлеW1rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MzEzMDIsImV4cCI6MjA5NjQwNzMwMn0.kMKJKd_BdtmCLJGYbk8VKUD2WxYwBQRgyGl_ZOvBm6M";
 
-        const randomSkinNames = ["FixEye", "Comp", "Scally", "Ronaldo", "MrBeast", "Dream", "Technoblade", "Frostdog", "Coffi", "EdisonPTS"];
-
-        // РЕГИСТРАЦИЯ
         document.getElementById('regBtn').addEventListener('click', async () => {
             const user = document.getElementById('username').value.trim();
             const pass = document.getElementById('password').value;
             const msg = document.getElementById('authMessage');
-            if(user.length < 3 || !pass) { msg.innerText = "Ник должен быть от 3 символов!"; msg.style.color = "#e74c3c"; return; }
+            
+            if (user.length < 3 || !pass) {
+                msg.innerText = "Ник должен быть от 3 символов!";
+                msg.style.color = "#e74c3c";
+                return;
+            }
 
-            msg.innerText = "Регистрация..."; msg.style.color = "#fff";
+            msg.innerText = "Отправка...";
+            msg.style.color = "#fff";
 
-            const { data, error } = await supabaseClient.from('users').insert([{ username: user, password_hash: pass }]).select().maybeSingle();
+            try {
+                // Прямой автономный HTTP запрос в обход любых блокировок библиотек
+                const response = await fetch(SUPABASE_REST_URL, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_API_KEY,
+                        'Authorization': 'Bearer ' + SUPABASE_API_KEY,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({ username: user, password_hash: pass })
+                });
 
-            if (error) {
-                msg.innerText = "Этот никнейм уже занят!"; msg.style.color = "#e74c3c";
-            } else {
-                currentUser = data;
-                msg.innerText = "Вы успешно зарегистрированы! Нажмите кнопку 'Войти'."; msg.style.color = "#2ecc71";
+                if (response.status === 201) {
+                    msg.innerText = "Успешно! Теперь открывайте лаунчер.";
+                    msg.style.color = "#2ecc71";
+                    document.getElementById('username').value = "";
+                    document.getElementById('password').value = "";
+                } else {
+                    const errData = await response.json().catch(() => ({}));
+                    if (response.status === 409 || (errData.code === "23505")) {
+                        msg.innerText = "Этот никнейм уже занят!";
+                    } else {
+                        msg.innerText = "Ошибка базы: " + (errData.message || response.statusText);
+                    }
+                    msg.style.color = "#e74c3c";
+                }
+            } catch (e) {
+                msg.innerText = "Ошибка сети: база данных Supabase заблокирована в вашей сети.";
+                msg.style.color = "#e74c3c";
+                console.error(e);
             }
         });
-
-        // ВХОД
-        document.getElementById('loginBtn').addEventListener('click', async () => {
-            const user = document.getElementById('username').value.trim();
-            const pass = document.getElementById('password').value;
-            const msg = document.getElementById('authMessage');
-            if(!user || !pass) return;
-
-            msg.innerText = "Вход..."; msg.style.color = "#fff";
-
-            const { data, error } = await supabaseClient.from('users').select('*').eq('username', user).maybeSingle();
-
-            if (error || !data || data.password_hash !== pass) {
-                msg.innerText = "Неверный никнейм или пароль!"; msg.style.color = "#e74c3c";
-            } else {
-                currentUser = data;
-                showDashboard();
-            }
-        });
-
-        // ПОКАЗ ПАНЕЛИ ИГРОКА
-        function showDashboard() {
-            document.getElementById('authBlock').style.display = 'none';
-            document.getElementById('lkBlock').style.display = 'block';
-            document.getElementById('lkUsername').innerText = currentUser.username;
-            document.getElementById('userBalance').innerText = currentUser.balance || 0;
-            if(currentUser.skin_url) document.getElementById('skinImg').src = currentUser.skin_url;
-        }
-
-        // ГЕНЕРАЦИЯ СКИНА
-        document.getElementById('generateSkinBtn').addEventListener('click', async () => {
-            const msg = document.getElementById('lkMessage');
-            const randomNick = randomSkinNames[Math.floor(Math.random() * randomSkinNames.length)];
-            const generatedSkinUrl = "https://minotar.net" + randomNick + "/100.png";
-            
-            await supabaseClient.from('users').update({ skin_url: generatedSkinUrl }).eq('id', currentUser.id);
-            document.getElementById('skinImg').src = generatedSkinUrl;
-            msg.innerText = "Установлен образ игрока " + randomNick + "!"; msg.style.color = "#2ecc71";
-        });
-
-        // АКТИВАЦИЯ ПРОМОКОДА
-        document.getElementById('activatePromoBtn').addEventListener('click', async () => {
-            const codeInput = document.getElementById('promoInput').value.trim();
-            const msg = document.getElementById('lkMessage');
-            if(!codeInput) return;
-
-            const { data: promo, error } = await supabaseClient.from('promocodes').select('*').eq('code', codeInput).single();
-            if (error || !promo || promo.uses_left <= 0) { msg.innerText = "Промокод не существует!"; msg.style.color = "#e74c3c"; return; }
-            
-            const { data: checkAct } = await supabaseClient.from('promocode_activations').select('*').eq('user_id', currentUser.id).eq('promocode_id', promo.id).single();
-            if(checkAct) { msg.innerText = "Вы уже вводили этот код!"; msg.style.color = "#f39c12"; return; }
-            
-            const newBalance = (currentUser.balance || 0) + promo.reward_money;
-            await supabaseClient.from('users').update({ balance: newBalance }).eq('id', currentUser.id);
-            await supabaseClient.from('promocode_activations').insert([{ user_id: currentUser.id, promocode_id: promo.id }]);
-            await supabaseClient.from('promocodes').update({ uses_left: promo.uses_left - 1 }).eq('id', promo.id);
-            
-            currentUser.balance = newBalance; document.getElementById('userBalance').innerText = newBalance;
-            msg.innerText = "Успешно! Монеты начислены."; msg.style.color = "#2ecc71";
-            document.getElementById('promoInput').value = "";
-        });
-
-        document.getElementById('logoutBtn').addEventListener('click', () => { window.location.reload(); });
     </script>
 </body>
 </html>
