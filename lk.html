@@ -13,13 +13,12 @@
         .main-container { max-width: 400px; margin: 80px auto; padding: 0 20px; }
         .card { background: var(--dark-bg); border: 1px solid #333; border-radius: 12px; padding: 25px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); text-align: center; }
         .input-field { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #444; border-radius: 6px; background: #050505; color: #fff; box-sizing: border-box; }
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
-        .btn-green { background: var(--accent-color); color: #fff; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; transition: 0.2s; }
+        .btn-green { background: var(--accent-color); color: #fff; } .btn-green:hover { background: #27ae60; }
         .status-msg { margin-top: 15px; font-weight: bold; }
     </style>
 </head>
 <body>
-
     <nav>
         <a href="#" class="brand">🌊 WATERPROJECT</a>
     </nav>
@@ -36,11 +35,9 @@
             <div id="authMessage" class="status-msg"></div>
         </div>
     </div>
-
-    <!-- ЧИСТЫЙ JAVASCRIPT БЕЗ ВНЕШНИХ БИБЛИОТЕК И СБОЕВ -->
     <script>
         const SUPABASE_REST_URL = "https://supabase.co";
-        const SUPABASE_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhqZWRmbHZvenJ5bXdlYXVлеW1rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MzEzMDIsImV4cCI6MjA5NjQwNzMwMn0.kMKJKd_BdtmCLJGYbk8VKUD2WxYwBQRgyGl_ZOvBm6M";
+        const SUPABASE_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhqZWRmbHZvenJ5bXdlYXVleW1rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MzEzMDIsImV4cCI6MjA5NjQwNzMwMn0.kMKJKd_BdtmCLJGYbk8VKUD2WxYwBQRgyGl_ZOvBm6M";
 
         document.getElementById('regBtn').addEventListener('click', async () => {
             const user = document.getElementById('username').value.trim();
@@ -57,7 +54,7 @@
             msg.style.color = "#fff";
 
             try {
-                // Прямой автономный HTTP запрос в обход любых блокировок библиотек
+                // Стабильный HTTP-запрос, который разрешен всеми браузерами
                 const response = await fetch(SUPABASE_REST_URL, {
                     method: 'POST',
                     headers: {
@@ -76,7 +73,7 @@
                     document.getElementById('password').value = "";
                 } else {
                     const errData = await response.json().catch(() => ({}));
-                    if (response.status === 409 || (errData.code === "23505")) {
+                    if (response.status === 409 || errData.code === "23505") {
                         msg.innerText = "Этот никнейм уже занят!";
                     } else {
                         msg.innerText = "Ошибка базы: " + (errData.message || response.statusText);
@@ -84,7 +81,7 @@
                     msg.style.color = "#e74c3c";
                 }
             } catch (e) {
-                msg.innerText = "Ошибка сети: база данных Supabase заблокирована в вашей сети.";
+                msg.innerText = "Ошибка сети при связи с Supabase.";
                 msg.style.color = "#e74c3c";
                 console.error(e);
             }
