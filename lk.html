@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Личный Кабинет — WaterProject</title>
+    <!-- Подключение FontAwesome для иконок -->
     <link rel="stylesheet" href="https://cloudflare.com">
     <script src="https://unpkg.com"></script>
     <style>
@@ -84,56 +85,82 @@
             </div>
         </div>
     </div>
+
     <script>
-        const SUPABASE_URL = "https://hqedflvozrymweaueymk.supabase.co/rest/v1/";
+        const SUPABASE_URL = "https://hqedflvozrymweaueymk.supabase.co";
         const SUPABASE_KEY = "sb_publishable_AhbI07QUWbsjEy-16VJ4zw_ymUbQ7sL";
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         let sessionUser = null;
 
+        // Функция проверки почты и переключения экранов
+        async function checkVerificationAndOpen(user) {
+            const msg = document.getElementById('authMessage');
+            
+            // Если у пользователя нет метки времени подтверждения почты
+            if (!user.email_confirmed_at) {
+                msg.innerText = "Пожалуйста, подтвердите ваш Email на почте перед входом!";
+                msg.style.color = "#f39c12";
+                
+                // Выходим из сессии, чтобы неавторизованный статус сохранялся
+                await supabaseClient.auth.signOut();
+                return;
+            }
+
+            // Если всё подтверждено — пускаем в ЛК
+            sessionUser = user;
+            document.getElementById('authBlock').classList.add('hidden');
+            document.getElementById('lkBlock').classList.remove('hidden');
+            document.getElementById('lkUsername').innerText = user.email;
+            msg.innerText = "";
+        }
+
         window.addEventListener('DOMContentLoaded', async () => {
             const { data: { session } } = await supabaseClient.auth.getSession();
-            if (session) { sessionUser = session.user; await syncAndOpenDashboard(); }
+            if (session && session.user) { 
+                await checkVerificationAndOpen(session.user); 
+            }
         });
 
         document.getElementById('loginBtn').addEventListener('click', async () => {
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const msg = document.getElementById('authMessage');
+            
+            if(!email || !password) return;
             msg.innerText = "Вход...";
+            msg.style.color = "#fff";
+
             const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-            if (error) { msg.innerText = "Ошибка: " + error.message; msg.style.color = "#e74c3c"; } 
-            else { sessionUser = data.user; await syncAndOpenDashboard(); }
+            
+            if (error) { 
+                msg.innerText = "Ошибка: " + error.message; 
+                msg.style.color = "#e74c3c"; 
+            } else if (data.user) { 
+                await checkVerificationAndOpen(data.user); 
+            }
         });
 
         document.getElementById('regBtn').addEventListener('click', async () => {
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const msg = document.getElementById('authMessage');
+            
+            if(!email || !password) return;
             msg.innerText = "Регистрация...";
+            msg.style.color = "#fff";
+
             const { data, error } = await supabaseClient.auth.signUp({ email, password });
-            if (error) { msg.innerText = "Ошибка: " + error.message; msg.style.color = "#e74c3c"; } 
-            else { msg.innerText = "Успех! Проверьте почту."; msg.style.color = "#2ecc71"; }
-        });
-
-        document.getElementById('googleBtn').addEventListener('click', async () => {
-            await supabaseClient.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: 'https://github.io' } });
-        });
-
-        async function syncAndOpenDashboard() {
-            let mcUsername = sessionUser.email.split('@')[0];
-            let { data: userProfile } = await supabaseClient.from('users').select('*').eq('username', mcUsername).maybeSingle();
-            if (!userProfile) {
-                const { data: newProfile } = await supabaseClient.from('users').insert([{ username: mcUsername, password_hash: 'oauth_secured' }]).select().maybeSingle();
-                userProfile = newProfile;
+            
+            if (error) { 
+                msg.innerText = "Ошибка: " + error.message; 
+                msg.style.color = "#e74c3c"; 
+            } else { 
+                msg.innerText = "Успех! Письмо отправлено. Проверьте почту для активации."; 
+                msg.style.color = "#2ecc71"; 
             }
-            document.getElementById('authBlock').classList.add('hidden');
-            document.getElementById('lkBlock').classList.remove('hidden');
-            document.getElementById('lkUsername').innerText = mcUsername;
-            document.getElementById('userBalance').innerText = userProfile ? (userProfile.balance || 0) : 0;
-            if(userProfile && userProfile.skin_url) document.getElementById('skinImg').src = userProfile.skin_url;
-        }
-
-        document.getElementById('logoutBtn').addEventListener('click', async () => { await supabaseClient.auth.signOut(); window.location.reload(); });
-    </script>
-</body>
-</html>
+        });
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await supabaseClient.auth.signOut();
+            sessionUser = null;
+            document.getElementById('lkBlock').classList.add('hidden');
+document.getElementById('authBlock').classList.remove('hidden');document.getElementById('email').value = "";document.getElementById('password').value = "";});
