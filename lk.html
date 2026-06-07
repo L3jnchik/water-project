@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Личный Кабинет — WaterProject</title>
-    <!-- Подключаем иконки FontAwesome -->
     <link rel="stylesheet" href="https://cloudflare.com">
-    <!-- Подключаем официальную библиотеку Supabase SDK -->
     <script src="https://unpkg.com"></script>
     <style>
         :root { --primary-color: #4fc3f7; --accent-color: #2ecc71; --dark-bg: rgba(15, 15, 15, 0.95); }
@@ -15,29 +13,22 @@
         nav .brand { font-size: 1.8rem; font-weight: bold; color: var(--primary-color); text-decoration: none; }
         nav .menu-links a { color: #bbb; text-decoration: none; margin-left: 25px; font-weight: 500; }
         nav .menu-links a:hover, nav .menu-links a.active { color: var(--primary-color); }
-        
         .main-container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
         .grid-panel { display: grid; grid-template-columns: 1.2fr 2fr; gap: 30px; }
         @media (max-width: 900px) { .grid-panel { grid-template-columns: 1fr; } }
-        
         .card { background: var(--dark-bg); border: 1px solid #333; border-radius: 12px; padding: 25px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
         .card h3 { margin-top: 0; color: var(--primary-color); border-bottom: 1px solid #222; padding-bottom: 10px; }
-        
         .input-field { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #444; border-radius: 6px; background: #050505; color: #fff; box-sizing: border-box; }
-        .input-field:focus { border-color: var(--primary-color); outline: none; }
-        
         .btn { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.2s; }
         .btn-green { background: var(--accent-color); color: #fff; } .btn-green:hover { background: #27ae60; }
         .btn-blue { background: var(--primary-color); color: #000; } .btn-blue:hover { background: #29b6f6; }
         .btn-orange { background: #e67e22; color: #fff; } .btn-orange:hover { background: #d35400; }
-        
         .profile-header { display: flex; align-items: center; gap: 20px; background: #0a0a0a; padding: 20px; border-radius: 10px; border: 1px solid #222; margin-bottom: 20px; }
         .skin-preview { background: #050505; border: 2px dashed #333; height: 180px; width: 130px; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
         .skin-image { height: 95%; image-rendering: pixelated; }
         .profile-info { flex-grow: 1; text-align: left; }
         .profile-info h2 { margin: 0 0 10px 0; color: var(--primary-color); font-size: 1.6rem; }
         .balance-badge { background: #f39c12; color: #000; padding: 8px 16px; border-radius: 6px; font-weight: bold; display: inline-flex; align-items: center; gap: 8px; font-size: 1.1rem; }
-        
         .status-msg { text-align: center; font-weight: bold; margin-top: 15px; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 9999; }
         .modal-card { background: #111; border: 2px solid var(--primary-color); border-radius: 12px; padding: 30px; width: 350px; text-align: center; box-shadow: 0 0 25px rgba(79, 195, 247, 0.5); }
@@ -60,13 +51,14 @@
         <!-- ЭКРАН 1: АВТОРИЗАЦИЯ -->
         <div id="authBlock" class="card" style="max-width: 400px; margin: 40px auto; display: block;">
             <h3>Вход / Регистрация по Email</h3>
-            <p style="color: #888; font-size: 0.9rem;">Введите вашу почту. Если аккаунта нет, нажмите "Регистрация".</p>
-            <form onsubmit="return false;">
+            <p style="color: #888; font-size: 0.9rem;">Введите вашу почту и нажмите нужную кнопку.</p>
+            <form id="mainAuthForm" onsubmit="return false;">
                 <input type="email" id="email" class="input-field" placeholder="Ваш Email адрес" required>
                 <input type="password" id="password" class="input-field" placeholder="Пароль" required>
                 <div style="display: flex; gap: 10px; margin-top: 15px;">
-                    <button type="button" id="loginBtn" class="btn btn-blue">Войти</button>
-                    <button type="button" id="regBtn" class="btn btn-green">Регистрация</button>
+                    <!-- Изменили тип кнопок на submit, теперь браузер обязан их активировать -->
+                    <button type="submit" id="loginBtn" class="btn btn-blue">Войти</button>
+                    <button type="submit" id="regBtn" class="btn btn-green">Регистрация</button>
                 </div>
             </form>
             <div id="authMessage" class="status-msg"></div>
@@ -75,10 +67,12 @@
         <!-- ЭКРАН 2: СОЗДАНИЕ НИКНЕЙМА -->
         <div id="nicknameModal" class="modal-overlay" style="display: none;">
             <div class="modal-card">
-                <h3 style="color: var(--primary-color); margin: 0 0 10px 0;"><i class="fa-solid fa-gamepad"></i> Создание профиля</h3>
+                <h3><i class="fa-solid fa-gamepad"></i> Создание профиля</h3>
                 <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 20px;">Придумайте никнейм для игры на сервере.</p>
-                <input type="text" id="newUsername" class="input-field" placeholder="Игровой ник (3-16 симв.)" maxlength="16">
-                <button type="button" id="saveNicknameBtn" class="btn btn-green" style="margin-top: 15px;">Начать игру</button>
+                <form id="nickForm" onsubmit="return false;">
+                    <input type="text" id="newUsername" class="input-field" placeholder="Игровой ник (3-16 симв.)" maxlength="16" required>
+                    <button type="submit" id="saveNicknameBtn" class="btn btn-green" style="margin-top: 15px;">Начать игру</button>
+                </form>
                 <div id="modalMessage" class="status-msg"></div>
             </div>
         </div>
@@ -106,8 +100,10 @@
                     <h3>Кастомизация скина</h3>
                     <div style="margin-bottom: 20px;">
                         <label style="font-weight: bold; display: block; margin-bottom: 8px; font-size: 0.9rem;"><i class="fa-solid fa-file-arrow-up"></i> Загрузить свой скин (.PNG)</label>
-                        <input type="file" id="skinFile" accept=".png" class="input-field" style="padding: 6px;">
-                        <button type="button" id="uploadSkinBtn" class="btn btn-blue" style="font-size: 0.9rem; padding: 10px;">Применить файл</button>
+                        <form id="skinForm" onsubmit="return false;">
+                            <input type="file" id="skinFile" accept=".png" class="input-field" style="padding: 6px;" required>
+                            <button type="submit" id="uploadSkinBtn" class="btn btn-blue" style="font-size: 0.9rem; padding: 10px;">Применить файл</button>
+                        </form>
                     </div>
                     <div style="border-top: 1px solid #222; padding-top: 20px;">
                         <label style="font-weight: bold; display: block; margin-bottom: 8px; font-size: 0.9rem;"><i class="fa-solid fa-wand-magic-sparkles"></i> Нет своего скина?</label>
@@ -118,10 +114,12 @@
                 <div class="card">
                     <h3>Активация бонусов</h3>
                     <p style="color: #888; font-size: 0.9rem;">Введите секретный промокод проекта, чтобы мгновенно пополнить свой баланс монет.</p>
-                    <div style="display: flex; gap: 10px; margin-top: 20px;">
-                        <input type="text" id="promoInput" class="input-field" placeholder="Введите промокод" style="margin: 0;">
-                        <button type="button" id="activatePromoBtn" class="btn btn-green" style="width: auto; padding: 0 30px;">Активировать</button>
-                    </div>
+                    <form id="promoForm" onsubmit="return false;">
+                        <div style="display: flex; gap: 10px; margin-top: 20px;">
+                            <input type="text" id="promoInput" class="input-field" placeholder="Введите промокод" style="margin: 0;" required>
+                            <button type="submit" id="activatePromoBtn" class="btn btn-green" style="width: auto; padding: 0 30px;">Активировать</button>
+                        </div>
+                    </form>
                     <div id="lkMessage" class="status-msg"></div>
                 </div>
             </div>
@@ -129,8 +127,8 @@
 
     </div>
     <script>
-        const SUPABASE_URL = "https://hqedflvozrymweaueymk.supabase.co/rest/v1/";
-        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhqZWRmbHZvenJ5bXdlYXVлеW1rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MzEzMDIsImV4cCI6MjA5NjQwNzMwMn0.kMKJKd_BdtmCLJGYbk8VKUD2WxYwBQRgyGl_ZOvBm6M";
+        const SUPABASE_URL = "https://supabase.co";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhqZWRmbHZvenJ5bXdlYXVleW1rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MzEzMDIsImV4cCI6MjA5NjQwNzMwMn0.kMKJKd_BdtmCLJGYbk8VKUD2WxYwBQRgyGl_ZOvBm6M";
         
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         let sessionUser = null;
@@ -146,8 +144,9 @@
             }
         });
 
-        // ВХОД
-        document.getElementById('loginBtn').addEventListener('click', async () => {
+        // Перехват отправки формы для Входа
+        document.getElementById('loginBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const msg = document.getElementById('authMessage');
@@ -160,8 +159,9 @@
             else { sessionUser = data.user; await checkUserProfile(); }
         });
 
-        // РЕГИСТРАЦИЯ
-        document.getElementById('regBtn').addEventListener('click', async () => {
+        // Перехват отправки формы для Регистрации
+        document.getElementById('regBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const msg = document.getElementById('authMessage');
@@ -174,10 +174,8 @@
             else { msg.innerText = "Успех! Письмо отправлено на почту. Подтвердите вход и обновите страницу."; msg.style.color = "#2ecc71"; }
         });
 
-        // ПРОВЕРКА ПРОФИЛЯ
         async function checkUserProfile() {
             let { data: profile } = await supabaseClient.from('users').select('*').eq('id', sessionUser.id).maybeSingle();
-            
             if (!profile) {
                 document.getElementById('authBlock').style.display = 'none';
                 document.getElementById('nicknameModal').style.display = 'flex';
@@ -187,55 +185,44 @@
             }
         }
 
-        // СОХРАНЕНИЕ НИКНЕЙМА
-        document.getElementById('saveNicknameBtn').addEventListener('click', async () => {
+        document.getElementById('saveNicknameBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
             const nick = document.getElementById('newUsername').value.trim();
             const msg = document.getElementById('modalMessage');
-            
             if (nick.length < 3 || nick.length > 16) {
                 msg.innerText = "Ник должен быть от 3 до 16 символов!"; msg.style.color = "#e74c3c";
                 return;
             }
-
             let { data: exist } = await supabaseClient.from('users').select('username').eq('username', nick).maybeSingle();
             if(exist) {
                 msg.innerText = "Этот никнейм уже занят!"; msg.style.color = "#e74c3c";
                 return;
             }
-
             const { data: newProfile, error } = await supabaseClient.from('users').insert([{ id: sessionUser.id, username: nick, password_hash: 'email_auth_secured' }]).select().single();
-            
             if (!error) {
                 dbProfile = newProfile;
                 document.getElementById('nicknameModal').style.display = 'none';
                 openDashboard();
-            } else {
-                msg.innerText = "Ошибка сохранения: " + error.message;
-            }
+            } else { msg.innerText = "Ошибка сохранения: " + error.message; }
         });
 
-        // ОТКРЫТИЕ ЛИЧНОГО КАБИНЕТА
         function openDashboard() {
             document.getElementById('authBlock').style.display = 'none';
             document.getElementById('nicknameModal').style.display = 'none';
             document.getElementById('lkBlock').style.display = 'block';
             document.getElementById('lkUsername').innerText = dbProfile.username;
             document.getElementById('userBalance').innerText = dbProfile.balance || 0;
-            if(dbProfile.skin_url) {
-                document.getElementById('skinImg').src = dbProfile.skin_url;
-            }
+            if(dbProfile.skin_url) { document.getElementById('skinImg').src = dbProfile.skin_url; }
         }
 
-        // ЗАГРУЗКА .PNG СКИНА
-        document.getElementById('uploadSkinBtn').addEventListener('click', async () => {
+        document.getElementById('uploadSkinBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
             const fileInput = document.getElementById('skinFile');
             const msg = document.getElementById('lkMessage');
             if (!fileInput.files.length) return;
-            
             msg.innerText = "Смена скина..."; msg.style.color = "#fff";
-            const file = fileInput.files[0];
+            const file = fileInput.files;
             const fileName = dbProfile.username + "_skin.png";
-            
             const { error: uploadError } = await supabaseClient.storage.from('skins').upload(fileName, file, { cacheControl: '0', upsert: true });
             if (!uploadError) {
                 const { data } = supabaseClient.storage.from('skins').getPublicUrl(fileName);
@@ -245,43 +232,34 @@
             } else { msg.innerText = "Ошибка: " + uploadError.message; msg.style.color = "#e74c3c"; }
         });
 
-        // СГЕНЕРИРОВАТЬ СЛУЧАЙНЫЙ СКИН
         document.getElementById('generateSkinBtn').addEventListener('click', async () => {
             const msg = document.getElementById('lkMessage');
             msg.innerText = "Подбор образа..."; msg.style.color = "#fff";
-            
             const randomNick = randomSkinNames[Math.floor(Math.random() * randomSkinNames.length)];
             const generatedSkinUrl = "https://minotar.net" + randomNick + "/100.png";
-            
             await supabaseClient.from('users').update({ skin_url: generatedSkinUrl }).eq('id', dbProfile.id);
-            
             document.getElementById('skinImg').src = generatedSkinUrl;
             msg.innerText = "Установлен образ игрока " + randomNick + "!"; msg.style.color = "#2ecc71";
         });
 
-        // АКТИВАЦИЯ ПРОМОКОДА
-        document.getElementById('activatePromoBtn').addEventListener('click', async () => {
+        document.getElementById('activatePromoBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
             const codeInput = document.getElementById('promoInput').value.trim();
             const msg = document.getElementById('lkMessage');
             if(!codeInput) return;
-            
             const { data: promo, error } = await supabaseClient.from('promocodes').select('*').eq('code', codeInput).single();
             if (error || !promo || promo.uses_left <= 0) { msg.innerText = "Промокод не существует!"; msg.style.color = "#e74c3c"; return; }
-            
             const { data: checkAct } = await supabaseClient.from('promocode_activations').select('*').eq('user_id', dbProfile.id).eq('promocode_id', promo.id).single();
             if(checkAct) { msg.innerText = "Вы уже вводили этот код!"; msg.style.color = "#f39c12"; return; }
-            
             const newBalance = dbProfile.balance + promo.reward_money;
             await supabaseClient.from('users').update({ balance: newBalance }).eq('id', dbProfile.id);
             await supabaseClient.from('promocode_activations').insert([{ user_id: dbProfile.id, promocode_id: promo.id }]);
             await supabaseClient.from('promocodes').update({ uses_left: promo.uses_left - 1 }).eq('id', promo.id);
-            
             dbProfile.balance = newBalance; document.getElementById('userBalance').innerText = newBalance;
             msg.innerText = "Успешно! Получено +" + promo.reward_money + " монет."; msg.style.color = "#2ecc71";
             document.getElementById('promoInput').value = "";
         });
 
-        // ВЫХОД
         document.getElementById('logoutBtn').addEventListener('click', async () => { await supabaseClient.auth.signOut(); window.location.reload(); });
     </script>
 </body>
