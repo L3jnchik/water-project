@@ -113,15 +113,20 @@
         const SUPABASE_URL = "https://hqedflvozrymweaueymk.supabase.co/rest/v1/";
         const SUPABASE_KEY = "sb_publishable_AhbI07QUWbsjEy-16VJ4zw_ymUbQ7sL";
         
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // Переименовали переменную во избежание конфликта с библиотекой window.supabase
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         let sessionUser = null;
 
-        // Автоматическая проверка активной сессии (остался ли пользователь в системе)
+        // Автоматическая проверка активной сессии при загрузке страницы
         window.addEventListener('DOMContentLoaded', async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                sessionUser = session.user;
-                await syncAndOpenDashboard();
+            try {
+                const { data: { session }, error } = await supabaseClient.auth.getSession();
+                if (session && !error) {
+                    sessionUser = session.user;
+                    await syncAndOpenDashboard();
+                }
+            } catch (e) {
+                console.error("Ошибка сессии:", e);
             }
         });
 
@@ -131,11 +136,19 @@
             const password = document.getElementById('password').value;
             const msg = document.getElementById('authMessage');
             
+            if(!email || !password) return;
             msg.innerText = "Вход...";
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+            msg.style.color = "#fff";
             
-            if (error) { msg.innerText = "Ошибка: " + error.message; msg.style.color = "#e74c3c"; } 
-            else { sessionUser = data.user; await syncAndOpenDashboard(); }
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            
+            if (error) { 
+                msg.innerText = "Ошибка: " + error.message; 
+                msg.style.color = "#e74c3c"; 
+            } else { 
+                sessionUser = data.user; 
+                await syncAndOpenDashboard(); 
+            }
         });
 
         // РЕГИСТРАЦИЯ ПО EMAIL И ПАРОЛЮ
@@ -144,17 +157,61 @@
             const password = document.getElementById('password').value;
             const msg = document.getElementById('authMessage');
             
+            if(!email || !password) return;
             msg.innerText = "Регистрация аккаунта...";
-            const { data, error } = await supabase.auth.signUp({ email, password });
+            msg.style.color = "#fff";
             
-            if (error) { msg.innerText = "Ошибка: " + error.message; msg.style.color = "#e74c3c"; } 
-            else { msg.innerText = "Успех! Проверьте почту для подтверждения входа."; msg.style.color = "#2ecc71"; }
+            const { data, error } = await supabaseClient.auth.signUp({ email, password });
+            
+            if (error) { 
+                msg.innerText = "Ошибка: " + error.message; 
+                msg.style.color = "#e74c3c"; 
+            } else { 
+                msg.innerText = "Успех! Проверьте почту для подтверждения аккаунта."; 
+                msg.style.color = "#2ecc71"; 
+            }
         });
 
         // АВТОРИЗАЦИЯ ЧЕРЕЗ GOOGLE
         document.getElementById('googleBtn').addEventListener('click', async () => {
-            await supabase.auth.signInWithOAuth({ provider: 'google' });
+            const msg = document.getElementById('authMessage');
+            msg.innerText = "Перенаправление в Google...";
+            await supabaseClient.auth.signInWithOAuth({ 
+                provider: 'google',
+                options: {
+                    redirectTo: 'https://github.io'
+                }
+            });
         });
 
         // СИНХРОНИЗАЦИЯ С ТАБЛИЦЕЙ ИГРОКОВ И ОТКРЫТИЕ ЛК
-async function syncAndOpenDashboard() {// Вырезаем никнейм из почты для отображения в игре (например, l3jnchik из l3jnchik@gmail.com)let mcUsername = sessionUser.email.split('@')[0];// Проверяем, есть ли запись в таблице пользователей 'users'let { data: userProfile } = await supabase.from('users').select('*').eq('username', mcUsername).single();// Если профиля в игровой таблице еще нет — создаем егоif (!userProfile) {const { data: newProfile } = await supabase.from('users').insert([{ username: mcUsername, password_hash: 'oauth_secured' }]).select().single();userProfile = newProfile;}document.getElementById('authBlock').classList.add('hidden');document.getElementById('lkBlock').classList.remove('hidden');document.getElementById('navUser').innerHTML = <i class="fa-solid fa-circle-user"></i> ${mcUsername};document.getElementById('lkUsername').innerText = mcUsername;document.getElementById('userBalance').innerText = userProfile.balance || 0;if(userProfile.skin_url) document.getElementById('skinImg').src = userProfile.skin_url;}// ВЫХОД ИЗ АККАУНТАdocument.getElementById('logoutBtn').addEventListener('click', async () => {await supabase.auth.signOut();window.location.reload();});
+        async function syncAndOpenDashboard() {
+            if(!sessionUser) return;
+            
+            // Вырезаем никнейм из почты (например, l3jnchik из l3jnchik@gmail.com)
+            let mcUsername = sessionUser.email.split('@')[0];
+            
+            // Проверяем наличие записи в таблице пользователей 'users'
+            let { data: userProfile } = await supabaseClient.from('users').select('*').eq('username', mcUsername).maybeSingle();
+            
+            // Если профиля в игровой таблице еще нет — создаем его
+            if (!userProfile) {
+                const { data: newProfile } = await supabaseClient.from('users').insert([{ username: mcUsername, password_hash: 'oauth_secured' }]).select().maybeSingle();
+                userProfile = newProfile;
+            }
+
+            document.getElementById('authBlock').classList.add('hidden');
+            document.getElementById('lkBlock').classList.remove('hidden');
+            document.getElementById('navUser').innerHTML = `<i class="fa-solid fa-circle-user"></i> Привет, ${mcUsername}`;
+            document.getElementById('lkUsername').innerText = mcUsername;
+            document.getElementById('userBalance').innerText = userProfile ? (userProfile.balance || 0) : 0;
+            if(userProfile && userProfile.skin_url) document.getElementById('skinImg').src = userProfile.skin_url;
+        }
+
+        // ВЫХОД ИЗ АККАУНТА
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await supabaseClient.auth.signOut();
+            window.location.reload();
+        });
+    </script>
+
