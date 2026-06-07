@@ -3,215 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WaterProject — Личный Кабинет</title>
-    <!-- SEO теги для Google -->
+    <title>WaterProject — Комплекс серверов Minecraft 1.16.5</title>
     <meta name="description" content="Уникальный комплекс серверов Minecraft 1.16.5 со своим лаунчером, скинами и промокодами!">
-    <meta name="keywords" content="сервер майнкрафт 1.16.5, сервера со своим лаунчером, gribland">
-    <meta name="robots" content="index, follow">
-    
     <link rel="stylesheet" href="https://cloudflare.com">
-    <!-- Подключение библиотеки Supabase JS SDK -->
-    <script src="https://unpkg.com"></script>
-    
     <style>
         :root { --primary-color: #4fc3f7; --accent-color: #2ecc71; --dark-bg: rgba(15, 15, 15, 0.95); }
         body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url('https://alphacoders.com') no-repeat center center fixed; background-size: cover; color: #fff; }
         nav { background: #0a0a0a; padding: 15px 50px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #222; }
-        nav .brand { font-size: 1.8rem; font-weight: bold; color: var(--primary-color); text-decoration: none; text-shadow: 2px 2px 0 #000; }
-        .main-container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
-        .grid-panel { display: grid; grid-template-columns: 1fr 2fr; gap: 30px; }
-        @media (max-width: 900px) { .grid-panel { grid-template-columns: 1fr; } }
-        .card { background: var(--dark-bg); border: 1px solid #333; border-radius: 12px; padding: 25px; box-shadow: 0 8px 24 rgba(0,0,0,0.5); }
-        .card h3 { margin-top: 0; color: var(--primary-color); border-bottom: 1px solid #222; padding-bottom: 10px; }
-        .input-field { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #444; border-radius: 6px; background: #050505; color: #fff; box-sizing: border-box; }
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1rem; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn-green { background: var(--accent-color); color: #fff; } .btn-green:hover { background: #27ae60; }
-        .btn-blue { background: var(--primary-color); color: #000; } .btn-blue:hover { background: #29b6f6; }
-        .btn-google { background: #fff; color: #000; margin-top: 15px; border: 1px solid #ddd; } .btn-google:hover { background: #eee; }
-        .skin-preview { background: #050505; border: 2px dashed #333; height: 300px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
-        .skin-image { height: 90%; image-rendering: pixelated; }
-        .balance-badge { background: #f39c12; color: #000; padding: 6px 18px; border-radius: 20px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
-        .hidden { display: none; } .status-msg { text-align: center; font-weight: bold; margin-top: 15px; }
-        .or-separator { margin: 20px 0; text-align: center; color: #666; font-size: 0.9rem; position: relative; }
+        nav .brand { font-size: 1.8rem; font-weight: bold; color: var(--primary-color); text-decoration: none; }
+        nav .menu-links a { color: #bbb; text-decoration: none; margin-left: 25px; font-weight: 500; transition: 0.3s; }
+        nav .menu-links a:hover, nav .menu-links a.active { color: var(--primary-color); }
+        .hero { text-align: center; padding: 100px 20px; }
+        .hero h1 { font-size: 3.5rem; margin-bottom: 10px; color: var(--primary-color); text-shadow: 3px 3px 0 #000; }
+        .btn-main { display: inline-block; padding: 15px 40px; background: var(--accent-color); color: #fff; font-weight: bold; text-decoration: none; border-radius: 6px; font-size: 1.2rem; box-shadow: 0 5px 0 #27ae60; transition: 0.2s; }
+        .btn-main:hover { background: #27ae60; transform: translateY(2px); box-shadow: 0 3px 0 #219653; }
     </style>
 </head>
 <body>
-
     <nav>
-        <a href="#" class="brand">🌊 WATERPROJECT</a>
-        <span id="navUser" style="color: #bbb;"><i class="fa-solid fa-user"></i> Гость</span>
+        <a href="index.html" class="brand">🌊 WATERPROJECT</a>
+        <div class="menu-links">
+            <a href="index.html" class="active"><i class="fa-solid fa-house"></i> Главная</a>
+            <a href="news.html"><i class="fa-solid fa-newspaper"></i> Новости</a>
+            <a href="media.html"><i class="fa-solid fa-photo-film"></i> Медиа</a>
+            <a href="lk.html"><i class="fa-solid fa-circle-user"></i> Личный кабинет</a>
+        </div>
     </nav>
-
-    <div class="main-container">
-        
-        <!-- БЛОК АВТОРИЗАЦИИ (Вход по Email / Регистрация / Google) -->
-        <div id="authBlock" class="card" style="max-width: 420px; margin: 40px auto;">
-            <h3>Вход в Личный Кабинет</h3>
-            <form onsubmit="return false;">
-                <input type="email" id="email" class="input-field" placeholder="Ваш Email адрес" required>
-                <input type="password" id="password" class="input-field" placeholder="Пароль" required>
-                
-                <div style="display: flex; gap: 10px; margin-top: 15px;">
-                    <button type="button" id="loginBtn" class="btn btn-blue">Войти</button>
-                    <button type="button" id="regBtn" class="btn btn-green">Регистрация</button>
-                </div>
-            </form>
-
-            <div class="or-separator">ИЛИ</div>
-
-            <!-- Кнопка авторизации через Google -->
-            <button type="button" id="googleBtn" class="btn btn-google">
-                <img src="https://gstatic.com" alt="Google" width="18">
-                Войти через Google
-            </button>
-
-            <div id="authMessage" class="status-msg"></div>
-        </div>
-
-        <!-- БЛОК ЛИЧНОГО КАБИНЕТА (Скин, баланс, промокоды) -->
-        <div id="lkBlock" class="grid-panel hidden">
-            <div class="card" style="text-align: center;">
-                <h3>Ваш Персонаж</h3>
-                <div class="balance-badge"><i class="fa-solid fa-coins"></i> Баланс: <span id="userBalance">0</span> монет</div>
-                <div class="skin-preview">
-                    <img id="skinImg" class="skin-image" src="https://minotar.net" alt="Skin">
-                </div>
-                <!-- Никнейм Minecraft (Имя до @ в почте или имя из Google) -->
-                <p id="lkUsername" style="font-size: 1.3rem; font-weight: bold; margin: 0; color: var(--primary-color);"></p>
-                <button type="button" id="logoutBtn" class="btn btn-blue" style="margin-top: 20px; background: #e74c3c; color: white;">Выйти</button>
-            </div>
-
-            <div class="card">
-                <h3>Управление аккаунтом</h3>
-                <div style="margin-bottom: 25px;">
-                    <label style="font-weight: bold; display: block; margin-bottom: 8px;"><i class="fa-solid fa-shirt"></i> Установка скина (.PNG)</label>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="file" id="skinFile" accept=".png" class="input-field" style="margin:0; padding: 8px;">
-                        <button type="button" id="uploadSkinBtn" class="btn btn-blue" style="width: auto; padding: 0 20px;">Загрузить</button>
-                    </div>
-                </div>
-                <div style="margin-bottom: 25px;">
-                    <label style="font-weight: bold; display: block; margin-bottom: 8px;"><i class="fa-solid fa-cloak"></i> Установка плаща (.PNG)</label>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="file" id="capeFile" accept=".png" class="input-field" style="margin:0; padding: 8px;">
-                        <button type="button" id="uploadCapeBtn" class="btn btn-blue" style="width: auto; padding: 0 20px;">Загрузить</button>
-                    </div>
-                </div>
-                <div>
-                    <label style="font-weight: bold; display: block; margin-bottom: 8px;"><i class="fa-solid fa-ticket"></i> Активировать промокод</label>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="text" id="promoInput" class="input-field" placeholder="Введите рабочий промокод" style="margin: 0;">
-                        <button type="button" id="activatePromoBtn" class="btn btn-green" style="width: auto; padding: 0 25px;">ОК</button>
-                    </div>
-                </div>
-                <div id="lkMessage" class="status-msg"></div>
-            </div>
-        </div>
+    <div class="hero">
+        <h1>💥 WATERPROJECT 💥</h1>
+        <p style="font-size: 1.3rem; color: #aaa; margin-bottom: 30px;">Уникальные сервера Minecraft 1.16.5 со своим лаунчером и стабильным онлайном!</p>
+        <a href="lk.html" class="btn-main">Начать играть бесплатно</a>
     </div>
-    <script>
-        // НАСТРОЙКА СВЯЗИ С БАЗОЙ ДАННЫХ SUPABASE
-        const SUPABASE_URL = "https://hqedflvozrymweaueymk.supabase.co/rest/v1/";
-        const SUPABASE_KEY = "sb_publishable_AhbI07QUWbsjEy-16VJ4zw_ymUbQ7sL";
-        
-        // Переименовали переменную во избежание конфликта с библиотекой window.supabase
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        let sessionUser = null;
-
-        // Автоматическая проверка активной сессии при загрузке страницы
-        window.addEventListener('DOMContentLoaded', async () => {
-            try {
-                const { data: { session }, error } = await supabaseClient.auth.getSession();
-                if (session && !error) {
-                    sessionUser = session.user;
-                    await syncAndOpenDashboard();
-                }
-            } catch (e) {
-                console.error("Ошибка сессии:", e);
-            }
-        });
-
-        // АВТОРИЗАЦИЯ ПО EMAIL И ПАРОЛЮ
-        document.getElementById('loginBtn').addEventListener('click', async () => {
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            const msg = document.getElementById('authMessage');
-            
-            if(!email || !password) return;
-            msg.innerText = "Вход...";
-            msg.style.color = "#fff";
-            
-            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-            
-            if (error) { 
-                msg.innerText = "Ошибка: " + error.message; 
-                msg.style.color = "#e74c3c"; 
-            } else { 
-                sessionUser = data.user; 
-                await syncAndOpenDashboard(); 
-            }
-        });
-
-        // РЕГИСТРАЦИЯ ПО EMAIL И ПАРОЛЮ
-        document.getElementById('regBtn').addEventListener('click', async () => {
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            const msg = document.getElementById('authMessage');
-            
-            if(!email || !password) return;
-            msg.innerText = "Регистрация аккаунта...";
-            msg.style.color = "#fff";
-            
-            const { data, error } = await supabaseClient.auth.signUp({ email, password });
-            
-            if (error) { 
-                msg.innerText = "Ошибка: " + error.message; 
-                msg.style.color = "#e74c3c"; 
-            } else { 
-                msg.innerText = "Успех! Проверьте почту для подтверждения аккаунта."; 
-                msg.style.color = "#2ecc71"; 
-            }
-        });
-
-        // АВТОРИЗАЦИЯ ЧЕРЕЗ GOOGLE
-        document.getElementById('googleBtn').addEventListener('click', async () => {
-            const msg = document.getElementById('authMessage');
-            msg.innerText = "Перенаправление в Google...";
-            await supabaseClient.auth.signInWithOAuth({ 
-                provider: 'google',
-                options: {
-                    redirectTo: 'https://github.io'
-                }
-            });
-        });
-
-        // СИНХРОНИЗАЦИЯ С ТАБЛИЦЕЙ ИГРОКОВ И ОТКРЫТИЕ ЛК
-        async function syncAndOpenDashboard() {
-            if(!sessionUser) return;
-            
-            // Вырезаем никнейм из почты (например, l3jnchik из l3jnchik@gmail.com)
-            let mcUsername = sessionUser.email.split('@')[0];
-            
-            // Проверяем наличие записи в таблице пользователей 'users'
-            let { data: userProfile } = await supabaseClient.from('users').select('*').eq('username', mcUsername).maybeSingle();
-            
-            // Если профиля в игровой таблице еще нет — создаем его
-            if (!userProfile) {
-                const { data: newProfile } = await supabaseClient.from('users').insert([{ username: mcUsername, password_hash: 'oauth_secured' }]).select().maybeSingle();
-                userProfile = newProfile;
-            }
-
-            document.getElementById('authBlock').classList.add('hidden');
-            document.getElementById('lkBlock').classList.remove('hidden');
-            document.getElementById('navUser').innerHTML = `<i class="fa-solid fa-circle-user"></i> Привет, ${mcUsername}`;
-            document.getElementById('lkUsername').innerText = mcUsername;
-            document.getElementById('userBalance').innerText = userProfile ? (userProfile.balance || 0) : 0;
-            if(userProfile && userProfile.skin_url) document.getElementById('skinImg').src = userProfile.skin_url;
-        }
-
-        // ВЫХОД ИЗ АККАУНТА
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
-            await supabaseClient.auth.signOut();
-            window.location.reload();
-        });
-    </script>
-
+</body>
+</html>
