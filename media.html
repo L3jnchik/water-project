@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Наши сообщества — WaterProject</title>
+    <link rel="stylesheet" href="https://cloudflare.com">
+    <style>
+        :root { --primary-color: #4fc3f7; --dark-bg: rgba(15, 15, 15, 0.95); }
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url('https://alphacoders.com') no-repeat center center fixed; background-size: cover; color: #fff; }
+        nav { background: #0a0a0a; padding: 15px 50px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #222; }
+        nav .brand { font-size: 1.8rem; font-weight: bold; color: var(--primary-color); text-decoration: none; }
+        nav .menu-links a { color: #bbb; text-decoration: none; margin-left: 25px; font-weight: 500; }
+        nav .menu-links a:hover, nav .menu-links a.active { color: var(--primary-color); }
+        .container { max-width: 500px; margin: 60px auto; padding: 0 20px; text-align: center; }
+        .card { background: var(--dark-bg); border: 1px solid #333; border-radius: 12px; padding: 30px; }
+        .btn-social { display: flex; align-items: center; justify-content: center; gap: 15px; padding: 15px; margin: 15px 0; border-radius: 6px; color: #fff; text-decoration: none; font-weight: bold; font-size: 1.1rem; transition: 0.3s; }
+        .btn-discord { background: #5865F2; } .btn-discord:hover { background: #4752C4; }
+        .btn-youtube { background: #FF0000; } .btn-youtube:hover { background: #CC0000; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="brand">🌊 WATERPROJECT</a>
+        <div class="menu-links">
+            <a href="index.html"><i class="fa-solid fa-house"></i> Главная</a>
+            <a href="news.html"><i class="fa-solid fa-newspaper"></i> Новости</a>
+            <a href="media.html" class="active"><i class="fa-solid fa-photo-film"></i> Медиа</a>
+            <a href="lk.html"><i class="fa-solid fa-circle-user"></i> Личный кабинет</a>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="card">
+            <h2 style="color: var(--primary-color); margin-top:0;">Наши Сообщества</h2>
+            <p style="color: #888; margin-bottom: 25px;">Присоединяйся к нам, чтобы следить за развитием проекта!</p>
+            <!-- Замените '#' на реальные ссылки -->
+            <a href="https://discord.com" target="_blank" class="btn-social btn-discord"><i class="fa-brands fa-discord fa-xl"></i> Сервер Discord</a>
+            <a href="https://youtube.com" target="_blank" class="btn-social btn-youtube"><i class="fa-brands fa-youtube fa-xl"></i> Канал YouTube</a>
+        </div>
+    </div>
+</body>
+</html>
